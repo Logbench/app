@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html[data-theme='default'] {
+    --background: 160 7.32 8.04;
+  }
+
+  html[data-theme='gruvbox'] {
+    --background: 200 4.76 12.4;
+  }
+
+  html {
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont;
+    font-size: 14px;
+    @apply bg-background;
+  }
+
+  *,
+  a,
+  button {
+    cursor: default;
+    user-select: none;
+  }
+}
+
+@layer components {
+  .drag {
+    -webkit-app-region: drag;
+  }
+
+  .no-drag {
+    -webkit-app-region: no-drag;
+  }
+}
