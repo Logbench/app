@@ -4,13 +4,11 @@
   import { isObjectLike } from './utils/is-object-like'
 </script>
 
-<div class="h-10 drag"></div>
-
-<p>Hej</p>
+<div class="h-10 sticky top-0 drag"></div>
 
 {#each FAKE_LOGS as log}
   {#if isObjectLike(log)}
-    <ObjectTree value={log} />
+    <ObjectTree i={0} value={log} />
   {:else}
     <p>Coming soon</p>
   {/if}

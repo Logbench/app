@@ -25,12 +25,12 @@
     @apply bg-background;
   }
 
-  *,
-  a,
-  button {
-    cursor: default;
-    user-select: none;
-  }
+  /**,*/
+  /*a,*/
+  /*button {*/
+  /*  cursor: default;*/
+  /*  user-select: none;*/
+  /*}*/
 }
 
 @layer components {
