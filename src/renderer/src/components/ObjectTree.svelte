@@ -126,10 +126,10 @@
   :where(._jsonBkt) {
     color: hsl(var(--jsonBracketColor));
     border-radius: 4px;
-    padding-block: 4px;
+    padding-block: 5px;
     padding-inline: 2px;
     margin-inline: -2px;
-    margin-block: -4px;
+    margin-block: -5px;
   }
   :where(._jsonBkt):not(.empty):hover {
     background: hsl(var(--jsonBracketHoverBackground));

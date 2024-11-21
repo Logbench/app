@@ -1,7 +1,7 @@
-import { app, shell, BrowserWindow, ipcMain, nativeTheme } from 'electron'
-import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { BrowserWindow, Menu, app, ipcMain, nativeTheme, shell } from 'electron'
+import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { join } from 'path'
 
 function createWindow(): void {
   // Create the browser window.
@@ -19,9 +19,8 @@ function createWindow(): void {
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: {
       x: 18,
-      y: 18
+      y: 19
     },
-    vibrancy: 'under-window',
     minWidth: 640,
     minHeight: 360
   })
@@ -70,6 +69,25 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  ipcMain.handle('show-context-menu', (event) => {
+    const template = [
+      {
+        label: 'Menu Item 1',
+        click: (): void => {
+          event.sender.send('context-menu-command', 'menu-item-1')
+        }
+      }
+    ]
+
+    const menu = Menu.buildFromTemplate(template)
+
+    const window = BrowserWindow.fromWebContents(event.sender)
+
+    if (window) {
+      menu.popup({ window })
+    }
+  })
 
   createWindow()
 

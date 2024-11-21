@@ -11,43 +11,49 @@
   }
 
   html[data-theme='gruvbox'] {
-    --background: 200 4.76 12.4;
-    --background-darker: 200 4.76 10.5;
-    --background-lighter: 200 4.76 17.5;
+    --background: 200 4.76 5;
+    --background-darker: 200 4.76 4;
+    --background-lighter: 200 4.76 7;
+    --background-lightest: 200 4.76 10;
+    --background-lightest-hover: 200 4.76 15;
     --foreground: 0 0 100;
     --foreground-inverted: 0 0 0;
     --foreground-muted: 200 4.76 50;
-    --border: 28 8.11 1;
-    --border-light: 200 4.76 20;
+
+    --border: 28 8.11 0.5;
+    --border-light: 200 4.76 12;
+    --border-lighter: 200 4.76 15;
+    --border-lighter-hover: 200 4.76 20;
+
     --primary: 25.6 200 56.9;
     --jsonBracketColor: 25.9 84.2 57.8;
-    --jsonBracketHoverBackground: 0 0 20;
+    --jsonBracketHoverBackground: 0 0 12;
     --jsonSeparatorColor: 25.9 84.2 57.8;
-    --jsonKeyColor: 155 12.5 59.2;
+    --jsonKeyColor: 155 32.5 59.2;
     --jsonValColor: 61.6 45.1 50;
-    --jsonValStringColor: 61.6 45.1 50;
+    --jsonValStringColor: 35.9 104.2 58;
     --jsonValNumberColor: 343 36.4 66.1;
-    --jsonValBooleanColor: 155 12.5 59.2;
+    --jsonValBooleanColor: 155 32.5 59.2;
   }
 
   html[data-theme='tokyonight'] {
-    --background: 225 15 14; /* Tokyonight's dark blue background */
-    --background-darker: 225 15 11; /* A slightly darker variation */
-    --background-lighter: 225 15 20; /* A lighter background for contrast */
-    --foreground: 0 0 95; /* Light text */
-    --foreground-inverted: 0 0 5; /* Dark text for light backgrounds */
-    --foreground-muted: 225 10 60; /* Muted text */
-    --border: 225 15 10; /* Border color, subtle */
-    --border-light: 225 15 25; /* Lighter border for contrast */
-    --primary: 220 50 60; /* Tokyonight's signature blue */
-    --jsonBracketColor: 220 50 60; /* Matches primary */
-    --jsonBracketHoverBackground: 225 15 18; /* Slight hover background for JSON brackets */
-    --jsonSeparatorColor: 220 50 60; /* Separator color matches brackets */
-    --jsonKeyColor: 260 40 70; /* Purplish tint for keys */
-    --jsonValColor: 180 40 65; /* Teal color for values */
-    --jsonValStringColor: 150 50 65; /* Light green for strings */
-    --jsonValNumberColor: 40 80 55; /* Orange-yellow for numbers */
-    --jsonValBooleanColor: 0 70 65; /* Reddish tint for booleans */
+    --background: 225 15 14;
+    --background-darker: 225 15 11;
+    --background-lighter: 225 15 20;
+    --foreground: 0 0 95;
+    --foreground-inverted: 0 0 5;
+    --foreground-muted: 225 10 60;
+    --border: 225 15 10;
+    --border-light: 225 15 25;
+    --primary: 220 50 60;
+    --jsonBracketColor: 220 50 60;
+    --jsonBracketHoverBackground: 225 15 18;
+    --jsonSeparatorColor: 220 50 60;
+    --jsonKeyColor: 260 40 70;
+    --jsonValColor: 180 40 65;
+    --jsonValStringColor: 150 50 65;
+    --jsonValNumberColor: 40 80 55;
+    --jsonValBooleanColor: 0 70 65;
   }
 
   ::-moz-selection {
@@ -62,8 +68,7 @@
 
   html {
     font-size: 14px;
-    color: hsl(var(--foreground));
-    @apply antialiased;
+    @apply antialiased bg-background text-foreground;
   }
 
   /**,*/
