@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, nativeTheme } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -15,14 +15,18 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
     },
-    backgroundColor: '#131615',
     darkTheme: true,
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: {
-      x: 12,
-      y: 12
-    }
+      x: 18,
+      y: 18
+    },
+    vibrancy: 'under-window',
+    minWidth: 640,
+    minHeight: 360
   })
+
+  nativeTheme.themeSource = 'dark'
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -32,6 +36,14 @@ function createWindow(): void {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
+
+  mainWindow.webContents.on('found-in-page', (event, result) => {
+    console.log(result)
+    if (result.finalUpdate) mainWindow.webContents.stopFindInPage('clearSelection')
+  })
+
+  const requestId = mainWindow.webContents.findInPage('data')
+  console.log(requestId)
 
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.

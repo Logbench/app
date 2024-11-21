@@ -1,81 +1,155 @@
 <script lang="ts">
+  import cn from '../utils/classnames'
   import Self from './ObjectTree.svelte'
 
-  let {
-    value: topValue,
-    i,
-    isInArray
-  } = $props<{ isInArray?: boolean; value: unknown | object | object[]; i: number }>()
+  let { json, depth = Infinity, _cur = 0, _last = true, search = '' } = $props()
 
-  let isOpen = $state(true)
+  let items = $state([])
+  let isArray = $state(false)
+  let brackets = $state(['', ''])
+  let collapsed = $state(false)
+
+  /**
+   * @param {*} i
+   * @returns {string}
+   */
+  function getType(i: unknown): string {
+    if (i === null) return 'null'
+    return typeof i
+  }
+
+  /**
+   * @param {*} i
+   * @returns {string}
+   */
+  function stringify(i: unknown): string {
+    return JSON.stringify(i)
+  }
+
+  /**
+   * @param {*} i
+   * @returns {string}
+   */
+  function format(i: unknown): string {
+    switch (getType(i)) {
+      case 'function':
+        return 'f () {...}'
+      case 'symbol':
+        return i.toString()
+      default:
+        return stringify(i)
+    }
+  }
+
+  function clicked(): void {
+    collapsed = !collapsed
+  }
+
+  /**
+   * @param {Event} e
+   */
+  function pressed(e: unknown): void {
+    if (e instanceof KeyboardEvent && ['Enter', ' '].includes(e.key)) clicked()
+  }
+
+  $effect(() => {
+    items = getType(json) === 'object' ? Object.keys(json) : []
+    isArray = Array.isArray(json)
+    brackets = isArray ? ['[', ']'] : ['{', '}']
+  })
+
+  //$: {
+  //}
+
+  $effect(() => {
+    collapsed = depth < _cur
+  })
 </script>
 
-<div class="pl-4 font-mono">
-  {#if Array.isArray(topValue)}
-    <div>
-      {#each topValue as nextValue, indexA}
-        <Self value={nextValue} isInArray i={indexA} />
-      {/each}
-    </div>
-  {:else if typeof topValue === 'object'}
-    <div>
-      <button
-        on:click={() => {
-          isOpen = !isOpen
-        }}>{isOpen ? `${i}: {` : `${i}: `}</button
-      >
+{#if !items.length}
+  <span class="_jsonBkt empty" class:isArray>{brackets[0]}{brackets[1]}</span>{#if !_last}<span
+      class="_jsonSep">,</span
+    >{/if}
+{:else if collapsed}
+  <span
+    class="_jsonBkt"
+    class:isArray
+    role="button"
+    tabindex="0"
+    onclick={clicked}
+    onkeydown={pressed}>{brackets[0]}...{brackets[1]}</span
+  >{#if !_last && collapsed}<span class="_jsonSep">,</span>{/if}
+{:else}
+  <span
+    class="_jsonBkt"
+    class:isArray
+    role="button"
+    tabindex="0"
+    onclick={clicked}
+    onkeydown={pressed}>{brackets[0]}</span
+  >
+  <ul class="_jsonList">
+    {#each items as i, idx}
+      <li>
+        {#if !isArray}
+          <span class={cn('_jsonKey', i === search && 'bg-yellow-500')}>{stringify(i)}</span><span
+            class="_jsonSep">:</span
+          >
+        {/if}
+        {#if getType(json[i]) === 'object'}
+          <Self json={json[i]} {depth} _cur={_cur + 1} _last={idx === items.length - 1} />
+        {:else}
+          <span class="_jsonVal {getType(json[i])}">{format(json[i])}</span
+          >{#if idx < items.length - 1}<span class="_jsonSep">,</span>{/if}
+        {/if}
+      </li>
+    {/each}
+  </ul>
+  <span
+    class="_jsonBkt"
+    class:isArray
+    role="button"
+    tabindex="0"
+    onclick={clicked}
+    onkeydown={pressed}>{brackets[1]}</span
+  >{#if !_last}<span class="_jsonSep">,</span>{/if}
+{/if}
 
-      {#if isOpen}
-        <div>
-          {#each Object.entries(topValue) as [key, value], indexB}
-            {#if typeof value === 'object'}
-              <div class="pl-4">
-                <button
-                  type="button"
-                  on:click={() => {
-                    isOpen = !isOpen
-                  }}
-                >
-                  {key}: {isOpen ? (Array.isArray(value) ? '[' : '{') : ''}
-                </button>
-
-                {#if Array.isArray(value)}
-                  {#if isOpen}
-                    <div>
-                      {#each value as nextValue, indexC}
-                        <Self isInArray value={nextValue} i={indexC} />
-                      {/each}
-
-                      <p>{']'}</p>
-                    </div>
-                  {/if}
-                {:else if isOpen}
-                  <div>
-                    <Self {value} i={indexB} />
-
-                    <p>{'}'}</p>
-                  </div>
-                {/if}
-              </div>
-            {:else}
-              <div class="flex items-center pl-4">
-                <p>{key}:&nbsp;</p>
-                <p>{value}</p>
-              </div>
-            {/if}
-          {/each}
-
-          <p>{'}'}</p>
-        </div>
-      {:else}
-        <button
-          on:click={() => {
-            isOpen = !isOpen
-          }}>{'{...}'}</button
-        >
-      {/if}
-    </div>
-  {:else}
-    <p>{i}: {topValue}</p>
-  {/if}
-</div>
+<style>
+  :where(._jsonList) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-left: var(--jsonPaddingLeft);
+    border-left: var(--jsonBorderLeft);
+  }
+  :where(._jsonBkt) {
+    color: hsl(var(--jsonBracketColor));
+    border-radius: 4px;
+    padding-block: 4px;
+    padding-inline: 2px;
+    margin-inline: -2px;
+    margin-block: -4px;
+  }
+  :where(._jsonBkt):not(.empty):hover {
+    background: hsl(var(--jsonBracketHoverBackground));
+  }
+  :where(._jsonSep) {
+    color: hsl(var(--jsonSeparatorColor));
+  }
+  :where(._jsonKey) {
+    color: hsl(var(--jsonKeyColor));
+  }
+  :where(._jsonVal) {
+    color: hsl(var(--jsonValColor));
+  }
+  :where(._jsonVal).string {
+    color: hsl(var(--jsonValStringColor));
+  }
+  :where(._jsonVal).number {
+    color: hsl(var(--jsonValNumberColor));
+  }
+  :where(._jsonVal).boolean {
+    color: hsl(var(--jsonValBooleanColor));
+  }
+</style>

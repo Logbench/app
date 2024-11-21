@@ -1,4 +1,4 @@
-# log-app
+# logbench
 
 An Electron application with Svelte and TypeScript
 
