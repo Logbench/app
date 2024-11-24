@@ -14,16 +14,16 @@
     --background: 200 4.76 5;
     --background-darker: 200 4.76 4;
     --background-lighter: 200 4.76 7;
-    --background-lightest: 200 4.76 10;
-    --background-lightest-hover: 200 4.76 15;
+    --background-lightest: 200 4.76 12;
+    --background-lightest-hover: 200 4.76 16;
     --foreground: 0 0 100;
     --foreground-inverted: 0 0 0;
     --foreground-muted: 200 4.76 50;
 
     --border: 28 8.11 0.5;
     --border-light: 200 4.76 12;
-    --border-lighter: 200 4.76 15;
-    --border-lighter-hover: 200 4.76 20;
+    --border-lighter: 200 4.76 18;
+    --border-lighter-hover: 200 4.76 22;
 
     --primary: 25.6 200 56.9;
     --jsonBracketColor: 25.9 84.2 57.8;
@@ -56,15 +56,15 @@
     --jsonValBooleanColor: 0 70 65;
   }
 
-  ::-moz-selection {
-    color: var(--foreground);
-    background: hsl(var(--jsonBracketHoverBackground));
-  }
-
-  ::selection {
-    color: var(--foreground);
-    background: hsl(var(--jsonBracketHoverBackground));
-  }
+  /*::-moz-selection {*/
+  /*  color: var(--foreground);*/
+  /*  background: hsl(var(--jsonBracketHoverBackground));*/
+  /*}*/
+  /**/
+  /*::selection {*/
+  /*  color: var(--foreground);*/
+  /*  background: hsl(var(--jsonBracketHoverBackground));*/
+  /*}*/
 
   html {
     font-size: 14px;

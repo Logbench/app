@@ -23,9 +23,13 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
+    "@tanstack/svelte-query": "^5.60.6",
+    "axios": "^1.7.7",
     "date-fns": "^4.1.0",
     "electron-updater": "^6.1.7",
-    "paneforge": "^0.0.6"
+    "paneforge": "^0.0.6",
+    "socket.io-client": "^4.8.1",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
@@ -33,6 +37,7 @@
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@sveltejs/vite-plugin-svelte": "^4.0.1",
     "@types/node": "^20.14.8",
+    "@types/ws": "^8.5.13",
     "autoprefixer": "^10.4.20",
     "electron": "^31.0.2",
     "electron-builder": "^24.13.3",

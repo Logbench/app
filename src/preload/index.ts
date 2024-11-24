@@ -1,11 +1,24 @@
-import { ipcRenderer, contextBridge } from 'electron'
+import { ipcRenderer, contextBridge, IpcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { Project } from './types/project'
+import { Log } from './types/log'
 
 // Custom APIs for renderer
 const api = {
   showContextMenu: (): Promise<unknown> => {
     return ipcRenderer.invoke('show-context-menu')
-  }
+  },
+  getProjects: (): Promise<Project[]> => {
+    return ipcRenderer.invoke('fetch-projects')
+  },
+  getProjectLogs: (projectId: string): Promise<Log[]> => {
+    return ipcRenderer.invoke('fetch-project-logs', projectId)
+  },
+  openProjectLogStream: (projectId: string): Promise<Project[]> => {
+    return ipcRenderer.invoke('open-project-log-stream', projectId)
+  },
+  onNewLog: (callback: (value: unknown) => void): IpcRenderer =>
+    ipcRenderer.on('new-log', (_event, value) => callback(value))
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
@@ -24,3 +37,5 @@ if (process.contextIsolated) {
   // @ts-ignore (define in dts)
   window.api = api
 }
+
+export type API = typeof api

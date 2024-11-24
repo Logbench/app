@@ -2,6 +2,10 @@ import icon from '../../resources/icon.png?asset'
 import { BrowserWindow, Menu, app, ipcMain, nativeTheme, shell } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'path'
+import axios from 'axios'
+import { io } from 'socket.io-client'
+
+const socket = io('http://localhost:1338')
 
 function createWindow(): void {
   // Create the browser window.
@@ -13,10 +17,12 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      contextIsolation: true
     },
     darkTheme: true,
     titleBarStyle: 'hiddenInset',
+    backgroundColor: '#0C0D0D',
     trafficLightPosition: {
       x: 18,
       y: 19
@@ -43,6 +49,11 @@ function createWindow(): void {
 
   const requestId = mainWindow.webContents.findInPage('data')
   console.log(requestId)
+
+  socket.on('new-log', (log) => {
+    console.log('New log', log)
+    mainWindow.webContents.send('new-log', log)
+  })
 
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
@@ -88,6 +99,20 @@ app.whenReady().then(() => {
       menu.popup({ window })
     }
   })
+
+  ipcMain.handle('fetch-projects', async () => {
+    return await axios.get('http://localhost:1338/projects').then((res) => res.data)
+  })
+
+  ipcMain.handle('fetch-project-logs', async (event, projectId: string) => {
+    return await axios
+      .get(`http://localhost:1338/projects/${projectId}/logs`)
+      .then((res) => res.data)
+  })
+
+  // ipcMain.handle('open-project-log-stream', async (event, projectId: string) => {
+  //   // Connection opened
+  // })
 
   createWindow()
 
