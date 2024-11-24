@@ -6,12 +6,19 @@
   import ShippingBoxFill from '../icons/ShippingBoxFill.svelte'
   import { createQuery } from '@tanstack/svelte-query'
 
+  // Props
+  let {
+    sidebar,
+    projectId,
+    onChangeProjectId
+  }: { sidebar: PaneAPI; projectId?: string; onChangeProjectId: (newProjectId: string) => void } =
+    $props()
+
+  // Server state
   const query = createQuery({
     queryKey: ['projects'],
     queryFn: () => window.api.getProjects()
   })
-
-  let { sidebar }: { sidebar: PaneAPI } = $props()
 
   let search = $state('')
 
@@ -39,7 +46,13 @@
       type="button"
       id="new-project"
       class="transition duration-150 border border-border-lighter w-full rounded-md py-1 pl-8 pr-2 bg-background-lightest hover:bg-background-lightest-hover hover:border-border-lighter-hover focus:outline-none focus:ring-2 ring-primary/25 shadow shadow-background"
-      >New project</button
+      onclick={() => {
+        const projectName = window.prompt('Project name')
+
+        if (projectName) {
+          window.api.createProject('New project')
+        }
+      }}>New project</button
     >
   </div>
 
@@ -55,9 +68,12 @@
         {#each $query.data as project}
           <button
             transition:fade={{ duration: 50 }}
+            onclick={() => {
+              onChangeProjectId(project.id)
+            }}
             class={cn(
               'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md',
-              'hover:bg-background-lightest'
+              project.id === projectId ? 'bg-background-lightest' : 'hover:bg-background-lightest'
             )}
           >
             <ShippingBoxFill class="w-4 fill-primary" />

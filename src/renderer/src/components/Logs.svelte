@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { PaneAPI } from 'paneforge'
-  import { FAKE_LOGS } from '../constants/logs'
   import MagnifyingGlass from '../icons/MagnifyingGlass.svelte'
   import SidebarLeft from '../icons/SidebarLeft.svelte'
   import cn from '../utils/classnames'
@@ -9,45 +8,40 @@
   import { type Log as ILog } from '../types/log'
   import { queryClient } from '../lib/tanstack-query'
 
-  let { sidebar, isSidebarOpen }: { sidebar: PaneAPI; isSidebarOpen: boolean } = $props()
+  // Props
+  let {
+    sidebar,
+    projectId,
+    isSidebarOpen
+  }: { projectId: string; sidebar: PaneAPI; isSidebarOpen: boolean } = $props()
 
-  let list: HTMLElement = $state()
+  // Server state
+  const project = $derived(
+    createQuery({
+      queryKey: ['projects', projectId],
+      queryFn: () => window.api.getProject(projectId)
+    })
+  )
 
-  const projectId = 'cm3sidba50000c56pqqhynapp'
+  const logs = $derived(
+    createQuery({
+      queryKey: ['projects', projectId, 'logs'],
+      queryFn: () => window.api.getProjectLogs(projectId)
+    })
+  )
 
-  const query = createQuery({
-    queryKey: ['projects', projectId, 'logs'],
-    queryFn: () => window.api.getProjectLogs(projectId)
-  })
-
+  // Side-effects
   $effect(() => {
     window.api.onNewLog((value: ILog) => {
       const queryData = queryClient.getQueryData<ILog[]>(['projects', projectId, 'logs'])
-      queryClient.setQueryData(['projects', projectId, 'logs'], [...queryData, value])
+      queryClient.setQueryData(['projects', projectId, 'logs'], [value, ...queryData])
     })
-  })
-
-  let hasScrolledInitially = $state(false)
-  let isAtBottom = $state(false)
-
-  $effect.pre(() => {
-    if (list && $query.data?.length && (!hasScrolledInitially || isAtBottom)) {
-      setTimeout(() => {
-        list.scroll({
-          top: list.scrollHeight,
-          behavior: hasScrolledInitially ? 'smooth' : 'instant'
-        })
-        if (!hasScrolledInitially) {
-          hasScrolledInitially = true
-        }
-      }, 0)
-    }
   })
 </script>
 
 <div
   class={cn(
-    'drag flex items-center justify-between gap-3 py-3',
+    'drag flex items-center justify-between gap-3 py-3 h-[53px]',
     isSidebarOpen ? 'pl-6 pr-3' : 'pr-3 pl-[81px]'
   )}
 >
@@ -66,8 +60,8 @@
     {/if}
 
     <div class="space-y-1.5">
-      <p class="text-[15px] font-medium leading-none">frontend-logbench</p>
-      <p class="text-sm text-foreground-muted leading-none">{FAKE_LOGS.length} logs</p>
+      <p class="text-[15px] font-medium leading-none">{$project.data?.name}</p>
+      <p class="text-sm text-foreground-muted leading-none">{$logs.data?.length} logs</p>
     </div>
   </div>
 
@@ -85,58 +79,36 @@
 </div>
 
 <div
-  onscroll={(e): void => {
-    if (hasScrolledInitially) {
-      const scrollTop = e.currentTarget.scrollTop
-      const scrollHeight = e.currentTarget.scrollHeight
-      const clientHeight = e.currentTarget.clientHeight
-
-      const tolerance = 1
-
-      if (scrollTop + clientHeight >= scrollHeight - tolerance) {
-        if (!isAtBottom) {
-          isAtBottom = true
-        }
-      } else {
-        isAtBottom = false
-      }
-    }
-  }}
-  class="flex-1 overflow-y-auto rounded-lg p-4"
-  bind:this={list}
+  class="bg-background-lighter flex flex-col relative overflow-y-auto"
+  style="height: calc(100% - 53px)"
 >
   <div
-    class="border border-border-light bg-background-lighter divide-y divide-border-light rounded-lg"
+    class="grid bg-background-lighter grid-cols-4 border-y border-border-light px-4 sticky top-0 z-10"
   >
-    <div class="grid grid-cols-4">
-      <div class="p-2">
-        <p>Date</p>
-      </div>
-      <div class="p-2">
-        <p>Client</p>
-      </div>
-      <div class="p-2">
-        <p>File</p>
-      </div>
-      <div class="p-2">
-        <p>Content</p>
-      </div>
+    <div class="p-2">
+      <p class="text-foreground-muted truncate">Date</p>
     </div>
 
-    <button
-      onclick={() => {
-        window.api.openProjectLogStream(projectId)
-      }}>Open stream</button
-    >
+    <div class="p-2">
+      <p class="text-foreground-muted truncate">Client</p>
+    </div>
 
-    {#if $query.isLoading}
-      <p>Loading...</p>
-    {:else if $query.isError}
-      <p>Error: {$query.error.message}</p>
-    {:else if $query.isSuccess}
-      {#each $query.data as log}
-        <Log {log} />
-      {/each}
-    {/if}
+    <div class="p-2 flex">
+      <p class="text-foreground-muted truncate">File</p>
+    </div>
+
+    <div class="p-2">
+      <p class="text-foreground-muted truncate">Content</p>
+    </div>
   </div>
+
+  {#if $logs.isLoading}
+    <p>Loading...</p>
+  {:else if $logs.isError}
+    <p>Error: {$logs.error.message}</p>
+  {:else if $logs.isSuccess}
+    {#each $logs.data as log}
+      <Log {log} />
+    {/each}
+  {/if}
 </div>

@@ -122,7 +122,6 @@
     padding: 0;
     padding-left: var(--jsonPaddingLeft);
     border-left: var(--jsonBorderLeft);
-    text-wrap: nowrap;
   }
   :where(._jsonBkt) {
     color: hsl(var(--jsonBracketColor));
@@ -131,34 +130,26 @@
     padding-inline: 2px;
     margin-inline: -2px;
     margin-block: -5px;
-    text-wrap: nowrap;
   }
   :where(._jsonBkt):not(.empty):hover {
     background: hsl(var(--jsonBracketHoverBackground));
-    text-wrap: nowrap;
   }
   :where(._jsonSep) {
     color: hsl(var(--jsonSeparatorColor));
-    text-wrap: nowrap;
   }
   :where(._jsonKey) {
     color: hsl(var(--jsonKeyColor));
-    text-wrap: nowrap;
   }
   :where(._jsonVal) {
     color: hsl(var(--jsonValColor));
-    text-wrap: nowrap;
   }
   :where(._jsonVal).string {
     color: hsl(var(--jsonValStringColor));
-    text-wrap: nowrap;
   }
   :where(._jsonVal).number {
     color: hsl(var(--jsonValNumberColor));
-    text-wrap: nowrap;
   }
   :where(._jsonVal).boolean {
     color: hsl(var(--jsonValBooleanColor));
-    text-wrap: nowrap;
   }
 </style>

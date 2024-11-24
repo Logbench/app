@@ -8,16 +8,16 @@
   import Checkmark from '../icons/Checkmark.svelte'
   import { fade } from 'svelte/transition'
 
+  let { log }: { log: Log } = $props()
+
   // Context menu template
   // Handle the right-click event
   function handleContextMenu(event: MouseEvent): void {
     event.preventDefault() // Prevent the default browser context menu
-    window.api.showContextMenu().catch((err: unknown) => {
+    window.api.showContextMenu(log.id).catch((err: unknown) => {
       console.error('Failed to show context menu:', err)
     })
   }
-
-  let { log }: { log: Log } = $props()
 
   let parsedLog = $derived.by(() => {
     let newLog = log
@@ -33,12 +33,23 @@
   })
 
   let isCopied: boolean = $state(false)
+
+  $effect(() => {
+    window.api.onMenuItemClicked(async (event: string, logId: string) => {
+      if (event === 'copy-log' && logId === log.id) {
+        try {
+          await navigator.clipboard.writeText(JSON.stringify(log, null, 2))
+        } catch {
+          window.alert('Failed to copy to clipboard')
+        }
+      }
+    })
+  })
 </script>
 
 <div
-  transition:fade
   tabindex={-1}
-  class="grid grid-cols-4 hover:bg-background-lightest"
+  class="grid grid-cols-4 hover:bg-background-lightest border-b border-border-light px-4"
   role="menu"
   oncontextmenu={handleContextMenu}
 >

@@ -81,12 +81,13 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
-  ipcMain.handle('show-context-menu', (event) => {
+  ipcMain.handle('show-log-context-menu', (event, logId: string) => {
     const template = [
       {
-        label: 'Menu Item 1',
+        label: 'Copy log',
         click: (): void => {
-          event.sender.send('context-menu-command', 'menu-item-1')
+          console.log('Click!')
+          event.sender.send('menu-item-clicked', 'copy-log', logId)
         }
       }
     ]
@@ -100,19 +101,25 @@ app.whenReady().then(() => {
     }
   })
 
-  ipcMain.handle('fetch-projects', async () => {
+  ipcMain.handle('get-projects', async () => {
     return await axios.get('http://localhost:1338/projects').then((res) => res.data)
   })
 
-  ipcMain.handle('fetch-project-logs', async (event, projectId: string) => {
+  ipcMain.handle('get-project', async (_, projectId: string) => {
+    return await axios.get(`http://localhost:1338/projects/${projectId}`).then((res) => res.data)
+  })
+
+  ipcMain.handle('fetch-project-logs', async (_, projectId: string) => {
     return await axios
       .get(`http://localhost:1338/projects/${projectId}/logs`)
       .then((res) => res.data)
   })
 
-  // ipcMain.handle('open-project-log-stream', async (event, projectId: string) => {
-  //   // Connection opened
-  // })
+  ipcMain.handle('create-project', async (_, name: string) => {
+    return await axios.post('http://localhost:1338/projects', {
+      name
+    })
+  })
 
   createWindow()
 

@@ -5,20 +5,30 @@ import { Log } from './types/log'
 
 // Custom APIs for renderer
 const api = {
-  showContextMenu: (): Promise<unknown> => {
-    return ipcRenderer.invoke('show-context-menu')
+  showContextMenu: (logId: string): Promise<unknown> => {
+    return ipcRenderer.invoke('show-log-context-menu', logId)
   },
   getProjects: (): Promise<Project[]> => {
-    return ipcRenderer.invoke('fetch-projects')
+    return ipcRenderer.invoke('get-projects')
+  },
+  getProject: (projectId: string): Promise<Project> => {
+    return ipcRenderer.invoke('get-project', projectId)
   },
   getProjectLogs: (projectId: string): Promise<Log[]> => {
     return ipcRenderer.invoke('fetch-project-logs', projectId)
+  },
+  createProject: async (name: string): Promise<Project> => {
+    return ipcRenderer.invoke('create-project', name)
   },
   openProjectLogStream: (projectId: string): Promise<Project[]> => {
     return ipcRenderer.invoke('open-project-log-stream', projectId)
   },
   onNewLog: (callback: (value: unknown) => void): IpcRenderer =>
-    ipcRenderer.on('new-log', (_event, value) => callback(value))
+    ipcRenderer.on('new-log', (_event, value) => callback(value)),
+  onMenuItemClicked: (callback: (action: string, logId: string) => void): IpcRenderer =>
+    ipcRenderer.on('menu-item-clicked', (_, action: string, logId: string) =>
+      callback(action, logId)
+    )
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -1,12 +1,13 @@
 <script lang="ts">
   import { PaneGroup, Pane, PaneResizer, type PaneAPI } from 'paneforge'
-  import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query'
+  import { QueryClientProvider } from '@tanstack/svelte-query'
   import Sidebar from './components/Sidebar.svelte'
   import Logs from './components/Logs.svelte'
   import { queryClient } from './lib/tanstack-query'
 
+  // Local state
+  let projectId: string = $state()
   let sidebar: PaneAPI = $state()
-
   let isSidebarOpen = $state(true)
 </script>
 
@@ -27,7 +28,13 @@
         }}
         class="bg-background-lighter"
       >
-        <Sidebar {sidebar} />
+        <Sidebar
+          {sidebar}
+          {projectId}
+          onChangeProjectId={(newProjectId) => {
+            projectId = newProjectId
+          }}
+        />
       </Pane>
 
       <PaneResizer
@@ -40,7 +47,9 @@
       </PaneResizer>
 
       <Pane class="flex flex-col">
-        <Logs {sidebar} {isSidebarOpen} />
+        {#if projectId}
+          <Logs {projectId} {sidebar} {isSidebarOpen} />
+        {/if}
       </Pane>
     </PaneGroup>
   </div>
