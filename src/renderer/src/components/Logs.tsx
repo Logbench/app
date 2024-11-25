@@ -1,29 +1,24 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import SidebarLeftIcon from '../icons/SidebarLeft'
 import MagnifyingGlassIcon from '../icons/MagnifyingGlass'
 import Log from './Log'
 import classNames from '../utils/classnames'
 import type { Log as ILog } from '../types/log'
-import { ImperativePanelHandle } from 'react-resizable-panels'
-import { ipcRenderer } from 'electron'
+import { useParams } from 'react-router'
 
-type ProjectLogsProps = {
-  sidebar: ImperativePanelHandle | null
-  projectId: string
-  isSidebarOpen: boolean
-}
-
-const ProjectLogs: React.FC<ProjectLogsProps> = ({ sidebar, projectId, isSidebarOpen }) => {
+const ProjectLogs = ({ sidebar = undefined, isSidebarOpen = true }) => {
   const queryClient = useQueryClient()
 
-  // Fetch project data
+  const { projectId } = useParams<{ projectId: string }>()
+
+  // Server state
   const { data: project, isLoading: isProjectLoading } = useQuery({
     queryKey: ['projects', projectId],
-    queryFn: () => window.api.getProject(projectId)
+    queryFn: () => window.api.getProject(projectId!),
+    enabled: Boolean(projectId)
   })
 
-  // Fetch logs
   const {
     data: logs,
     isLoading: isLogsLoading,
@@ -31,13 +26,19 @@ const ProjectLogs: React.FC<ProjectLogsProps> = ({ sidebar, projectId, isSidebar
     error: logsError
   } = useQuery({
     queryKey: ['projects', projectId, 'logs'],
-    queryFn: () => window.api.getProjectLogs(projectId)
+    queryFn: () => window.api.getProjectLogs(projectId!),
+    enabled: Boolean(projectId)
   })
 
-  // Handle new logs via side-effects
+  // Side-effects
   useEffect(() => {
     window.api.onNewLog((newLog) => {
+      if (newLog.project?.id !== projectId) {
+        return
+      }
+
       const existingLogs = queryClient.getQueryData<ILog[]>(['projects', projectId, 'logs']) || []
+
       queryClient.setQueryData(['projects', projectId, 'logs'], [newLog, ...existingLogs])
     })
 
@@ -61,15 +62,21 @@ const ProjectLogs: React.FC<ProjectLogsProps> = ({ sidebar, projectId, isSidebar
               type="button"
               title="Toggle sidebar"
               className="no-drag group rounded-md hover:bg-foreground/5 transition duration-700 px-[9px] py-2"
-              onClick={() => sidebar?.expand()}
+              //onClick={() => sidebar.current?.expand()}
             >
               <SidebarLeftIcon className="fill-foreground/40 group-active:fill-foreground transition w-6" />
             </button>
           )}
           <div className="space-y-1.5">
-            <p className="text-[15px] font-medium leading-none">
+            <button
+              type="button"
+              className="text-[15px] font-medium leading-none text-left no-drag"
+              onClick={() => {
+                navigator.clipboard.writeText(projectId!)
+              }}
+            >
               {isProjectLoading ? 'Loading...' : project?.name || 'Unknown Project'}
-            </p>
+            </button>
             <p className="text-sm text-foreground-muted leading-none">
               {isLogsLoading ? 'Loading logs...' : `${logs?.length || 0} logs`}
             </p>

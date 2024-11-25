@@ -1,16 +1,11 @@
 import React, { useState, useMemo } from 'react'
-import { format } from 'date-fns'
+import { format, isAfter, subSeconds } from 'date-fns'
 import { isObjectLike } from '../utils/is-object-like'
 import ObjectTree from './ObjectTree'
 import DocumentOnDocument from '../icons/DocumentOnDocument'
 import Checkmark from '../icons/Checkmark'
-
-type Log = {
-  id: string
-  createdAt?: string
-  content: string | object
-  project?: { name: string }
-}
+import { Log } from '@renderer/types/log'
+import cn from '@renderer/utils/classnames'
 
 type LogProps = {
   log: Log
@@ -72,10 +67,11 @@ const LogItem: React.FC<LogProps> = ({ log }) => {
 
   return (
     <div
-      tabIndex={-1}
-      className="grid grid-cols-4 hover:bg-background-lightest border-b border-border-light px-4"
-      role="menu"
-      //onContextMenu={handleContextMenu}
+      className={cn(
+        'grid grid-cols-4 border-b border-border-light px-4',
+        isAfter(new Date(parsedLog.createdAt), subSeconds(new Date(), 10)) &&
+          'fade-in bg-primary/10'
+      )}
     >
       {/* Date */}
       <div className="p-2">

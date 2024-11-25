@@ -15,7 +15,7 @@ const api = {
     return ipcRenderer.invoke('get-project', projectId)
   },
   getProjectLogs: (projectId: string): Promise<Log[]> => {
-    return ipcRenderer.invoke('fetch-project-logs', projectId)
+    return ipcRenderer.invoke('get-project-logs', projectId)
   },
   createProject: async (name: string): Promise<Project> => {
     return ipcRenderer.invoke('create-project', name)
@@ -23,7 +23,7 @@ const api = {
   openProjectLogStream: (projectId: string): Promise<Project[]> => {
     return ipcRenderer.invoke('open-project-log-stream', projectId)
   },
-  onNewLog: (callback: (value: unknown) => void): IpcRenderer =>
+  onNewLog: (callback: (value: Log) => void): IpcRenderer =>
     ipcRenderer.on('new-log', (_event, value) => callback(value)),
   removeNewLogListeners: (): void => {
     ipcRenderer.removeAllListeners('new-log')

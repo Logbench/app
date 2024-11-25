@@ -37,7 +37,7 @@ const JsonTree: React.FC<JsonTreeProps> = ({
       case 'function':
         return 'f () {...}'
       case 'symbol':
-        return value.toString()
+        return (value as string).toString()
       default:
         return stringify(value)
     }

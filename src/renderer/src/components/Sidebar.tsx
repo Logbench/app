@@ -1,18 +1,17 @@
-import React, { useState } from 'react'
+import { MutableRefObject, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import SidebarLeftIcon from '../icons/SidebarLeft'
 import ShippingBoxFillIcon from '../icons/ShippingBoxFill'
 import classNames from '../utils/classnames'
 import { ImperativePanelHandle } from 'react-resizable-panels'
+import { Link } from 'react-router'
 
 type SidebarProps = {
-  sidebar: ImperativePanelHandle | null // PaneAPI equivalent
-  projectId?: string
-  onChangeProjectId: (newProjectId: string) => void
+  sidebar: MutableRefObject<ImperativePanelHandle | null> // PaneAPI equivalent
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ sidebar, projectId, onChangeProjectId }) => {
-  const [search, setSearch] = useState('')
+const Sidebar = ({ sidebar }: SidebarProps) => {
+  const [search] = useState('')
 
   // Fetch projects
   const {
@@ -31,7 +30,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebar, projectId, onChangeProjectId
   )
 
   return (
-    <div>
+    <div id="sidebar">
       {/* Header Section */}
       <div className="pl-[82px] items-center h-[52px] flex item-center gap-3 drag">
         <button
@@ -39,7 +38,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebar, projectId, onChangeProjectId
           title="Toggle sidebar"
           className="no-drag group rounded-md hover:bg-foreground/5 transition duration-700 px-[9px] py-2"
           onClick={() => {
-            sidebar?.collapse()
+            sidebar.current?.collapse()
           }}
         >
           <SidebarLeftIcon className="fill-foreground/40 group-active:fill-foreground transition w-6" />
@@ -74,19 +73,20 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebar, projectId, onChangeProjectId
           {projects.length > 0 && (
             <div className="-space-y-0.5">
               {filteredProjects.map((project: { id: string; name: string }) => (
-                <button
+                <Link
+                  to={`/${project.id}`}
                   key={project.id}
-                  onClick={() => onChangeProjectId(project.id)}
+                  //onClick={() => onChangeProjectId(project.id)}
                   className={classNames(
                     'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md',
-                    project.id === projectId
+                    project.id === 'TODO: Use variable here'
                       ? 'bg-background-lightest'
                       : 'hover:bg-background-lightest'
                   )}
                 >
                   <ShippingBoxFillIcon className="w-4 fill-primary" />
                   <p className="truncate flex-1">{project.name}</p>
-                </button>
+                </Link>
               ))}
             </div>
           )}

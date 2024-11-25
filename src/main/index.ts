@@ -1,5 +1,5 @@
 import icon from '../../resources/icon.png?asset'
-import { BrowserWindow, Menu, app, ipcMain, nativeTheme, shell } from 'electron'
+import { BrowserWindow, app, ipcMain, nativeTheme, shell } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import axios from 'axios'
@@ -97,7 +97,7 @@ app.whenReady().then(() => {
     return await axios.get(`http://localhost:1338/projects/${projectId}`).then((res) => res.data)
   })
 
-  ipcMain.handle('fetch-project-logs', async (_, projectId: string) => {
+  ipcMain.handle('get-project-logs', async (_, projectId: string) => {
     return await axios
       .get(`http://localhost:1338/projects/${projectId}/logs`)
       .then((res) => res.data)
