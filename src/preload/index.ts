@@ -3,7 +3,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 import { Project } from './types/project'
 import { Log } from './types/log'
 
-// Custom APIs for renderer
+// Custom APIs for rendere
 const api = {
   showContextMenu: (logId: string): Promise<unknown> => {
     return ipcRenderer.invoke('show-log-context-menu', logId)
@@ -25,10 +25,14 @@ const api = {
   },
   onNewLog: (callback: (value: unknown) => void): IpcRenderer =>
     ipcRenderer.on('new-log', (_event, value) => callback(value)),
-  onMenuItemClicked: (callback: (action: string, logId: string) => void): IpcRenderer =>
-    ipcRenderer.on('menu-item-clicked', (_, action: string, logId: string) =>
-      callback(action, logId)
-    )
+  removeNewLogListeners: (): void => {
+    ipcRenderer.removeAllListeners('new-log')
+  }
+
+  //onMenuItemClicked: (callback: (action: string, logId: string) => void): IpcRenderer =>
+  //  ipcRenderer.on('menu-item-clicked', (_, action: string, logId: string) =>
+  //    callback(action, logId)
+  //  )
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

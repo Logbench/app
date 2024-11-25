@@ -42,16 +42,7 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
-  mainWindow.webContents.on('found-in-page', (event, result) => {
-    console.log(result)
-    if (result.finalUpdate) mainWindow.webContents.stopFindInPage('clearSelection')
-  })
-
-  const requestId = mainWindow.webContents.findInPage('data')
-  console.log(requestId)
-
   socket.on('new-log', (log) => {
-    console.log('New log', log)
     mainWindow.webContents.send('new-log', log)
   })
 
@@ -78,28 +69,25 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
-
-  ipcMain.handle('show-log-context-menu', (event, logId: string) => {
-    const template = [
-      {
-        label: 'Copy log',
-        click: (): void => {
-          console.log('Click!')
-          event.sender.send('menu-item-clicked', 'copy-log', logId)
-        }
-      }
-    ]
-
-    const menu = Menu.buildFromTemplate(template)
-
-    const window = BrowserWindow.fromWebContents(event.sender)
-
-    if (window) {
-      menu.popup({ window })
-    }
-  })
+  //ipcMain.handle('show-log-context-menu', (event, logId: string) => {
+  //  const template = [
+  //    {
+  //      label: 'Copy log',
+  //      click: (): void => {
+  //        console.log('Click!')
+  //        event.sender.send('menu-item-clicked', 'copy-log', logId)
+  //      }
+  //    }
+  //  ]
+  //
+  //  const menu = Menu.buildFromTemplate(template)
+  //
+  //  const window = BrowserWindow.fromWebContents(event.sender)
+  //
+  //  if (window) {
+  //    menu.popup({ window })
+  //  }
+  //})
 
   ipcMain.handle('get-projects', async () => {
     return await axios.get('http://localhost:1338/projects').then((res) => res.data)

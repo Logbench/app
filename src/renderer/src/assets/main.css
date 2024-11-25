@@ -92,4 +92,49 @@
   .no-drag {
     -webkit-app-region: no-drag;
   }
+
+  ._jsonList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-left: var(--jsonPaddingLeft);
+    border-left: var(--jsonBorderLeft);
+  }
+
+  ._jsonBkt {
+    color: hsl(var(--jsonBracketColor));
+    border-radius: 4px;
+    padding-block: 5px;
+    padding-inline: 2px;
+    margin-inline: -2px;
+    margin-block: -5px;
+  }
+
+  ._jsonBkt:not(.empty):hover {
+    background: hsl(var(--jsonBracketHoverBackground));
+  }
+
+  ._jsonSep {
+    color: hsl(var(--jsonSeparatorColor));
+  }
+
+  ._jsonKey {
+    color: hsl(var(--jsonKeyColor));
+  }
+
+  ._jsonVal {
+    color: hsl(var(--jsonValColor));
+  }
+
+  ._jsonVal.string {
+    color: hsl(var(--jsonValStringColor));
+  }
+
+  ._jsonVal.number {
+    color: hsl(var(--jsonValNumberColor));
+  }
+
+  ._jsonVal.boolean {
+    color: hsl(var(--jsonValBooleanColor));
+  }
 }
