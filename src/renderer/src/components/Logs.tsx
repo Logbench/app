@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import SidebarLeftIcon from '../icons/SidebarLeft'
 import MagnifyingGlassIcon from '../icons/MagnifyingGlass'
 import Log from './Log'
@@ -23,11 +23,17 @@ const ProjectLogs = ({ sidebar = undefined, isSidebarOpen = true }) => {
     data: logs,
     isLoading: isLogsLoading,
     isError: isLogsError,
-    error: logsError
+    error: logsError,
+    refetch: refetchProjectLogs
   } = useQuery({
     queryKey: ['projects', projectId, 'logs'],
     queryFn: () => window.api.getProjectLogs(projectId!),
     enabled: Boolean(projectId)
+  })
+
+  const { mutate: mutateDeleteProjectLogs, isPending: isDeleteProjectLogsLoading } = useMutation({
+    mutationFn: () => window.api.deleteProjectLogs(projectId!),
+    onSettled: () => refetchProjectLogs()
   })
 
   // Side-effects
@@ -49,7 +55,6 @@ const ProjectLogs = ({ sidebar = undefined, isSidebarOpen = true }) => {
 
   return (
     <>
-      {/* Header Section */}
       <div
         className={classNames(
           'drag flex items-center justify-between gap-3 py-3 h-[53px]',
@@ -82,19 +87,34 @@ const ProjectLogs = ({ sidebar = undefined, isSidebarOpen = true }) => {
             </p>
           </div>
         </div>
-        <div className="relative no-drag">
-          <MagnifyingGlassIcon className="w-3.5 fill-foreground absolute top-1/2 left-2.5 -translate-y-1/2" />
-          <input
-            type="text"
-            id="search-projects"
-            placeholder="Search"
-            className="w-48 transition-all duration-150 focus:w-64 rounded-md py-1 pl-8 pr-2 bg-transparent border border-foreground/10 placeholder-foreground/20 focus:outline-none focus:ring-2 ring-primary/25"
-            style={{ transitionProperty: 'width' }}
-          />
+        <div className="no-drag flex items-center gap-3 px-3">
+          <div className="relative">
+            <MagnifyingGlassIcon className="w-3.5 fill-foreground absolute top-1/2 left-2.5 -translate-y-1/2" />
+            <input
+              type="text"
+              id="search-projects"
+              placeholder="Search"
+              className="w-48 transition-all duration-150 focus:w-64 rounded-md py-1 pl-8 pr-2 bg-transparent border border-foreground/10 placeholder-foreground/20 focus:outline-none focus:ring-2 ring-primary/25"
+              style={{ transitionProperty: 'width' }}
+            />
+          </div>
+
+          <button
+            onClick={() => {
+              if (!projectId) {
+                return
+              }
+
+              mutateDeleteProjectLogs()
+            }}
+            disabled={isDeleteProjectLogsLoading}
+            className="text-foreground-muted hover:text-inherit transition"
+          >
+            Clear
+          </button>
         </div>
       </div>
 
-      {/* Logs Section */}
       <div
         className="bg-background-lighter flex flex-col relative overflow-y-auto"
         style={{ height: 'calc(100% - 53px)' }}

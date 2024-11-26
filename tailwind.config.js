@@ -18,6 +18,7 @@ module.exports = {
         foreground: 'hsl(var(--foreground))',
         ['foreground-inverted']: 'hsl(var(--foreground-inverted))',
         primary: 'hsl(var(--primary))',
+        ['primary-muted']: 'hsl(var(--primary-muted))',
         ['foreground-muted']: 'hsl(var(--foreground-muted))'
       },
       borderRadius: {

@@ -4,13 +4,17 @@ import SidebarLeftIcon from '../icons/SidebarLeft'
 import ShippingBoxFillIcon from '../icons/ShippingBoxFill'
 import classNames from '../utils/classnames'
 import { ImperativePanelHandle } from 'react-resizable-panels'
-import { Link } from 'react-router'
+import { Link, useParams } from 'react-router'
 
 type SidebarProps = {
   sidebar: MutableRefObject<ImperativePanelHandle | null> // PaneAPI equivalent
 }
 
 const Sidebar = ({ sidebar }: SidebarProps) => {
+  // URL state
+  const { projectId } = useParams<{ projectId: string }>()
+
+  // Local state
   const [search] = useState('')
 
   // Fetch projects
@@ -30,7 +34,7 @@ const Sidebar = ({ sidebar }: SidebarProps) => {
   )
 
   return (
-    <div id="sidebar">
+    <div id="sidebar" className="flex flex-col h-full">
       {/* Header Section */}
       <div className="pl-[82px] items-center h-[52px] flex item-center gap-3 drag">
         <button
@@ -45,7 +49,7 @@ const Sidebar = ({ sidebar }: SidebarProps) => {
         </button>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 flex-1">
         {/* New Project Button */}
         <div className="px-3">
           <button
@@ -79,7 +83,7 @@ const Sidebar = ({ sidebar }: SidebarProps) => {
                   //onClick={() => onChangeProjectId(project.id)}
                   className={classNames(
                     'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md',
-                    project.id === 'TODO: Use variable here'
+                    project.id === projectId
                       ? 'bg-background-lightest'
                       : 'hover:bg-background-lightest'
                   )}
@@ -91,6 +95,17 @@ const Sidebar = ({ sidebar }: SidebarProps) => {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="p-5">
+        <button
+          onClick={() => {
+            window.api.reset()
+          }}
+          className="text-sm text-foreground-muted"
+        >
+          Reset
+        </button>
       </div>
     </div>
   )

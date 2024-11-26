@@ -5,6 +5,9 @@ import { Log } from './types/log'
 
 // Custom APIs for rendere
 const api = {
+  reset: (): Promise<unknown> => {
+    return ipcRenderer.invoke('reset')
+  },
   showContextMenu: (logId: string): Promise<unknown> => {
     return ipcRenderer.invoke('show-log-context-menu', logId)
   },
@@ -16,6 +19,9 @@ const api = {
   },
   getProjectLogs: (projectId: string): Promise<Log[]> => {
     return ipcRenderer.invoke('get-project-logs', projectId)
+  },
+  deleteProjectLogs: (projectId: string): Promise<Log[]> => {
+    return ipcRenderer.invoke('delete-project-logs', projectId)
   },
   createProject: async (name: string): Promise<Project> => {
     return ipcRenderer.invoke('create-project', name)

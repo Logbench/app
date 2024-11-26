@@ -89,6 +89,10 @@ app.whenReady().then(() => {
   //  }
   //})
 
+  ipcMain.handle('reset', async () => {
+    return await axios.post('http://localhost:1338/reset').then((res) => res.data)
+  })
+
   ipcMain.handle('get-projects', async () => {
     return await axios.get('http://localhost:1338/projects').then((res) => res.data)
   })
@@ -100,6 +104,12 @@ app.whenReady().then(() => {
   ipcMain.handle('get-project-logs', async (_, projectId: string) => {
     return await axios
       .get(`http://localhost:1338/projects/${projectId}/logs`)
+      .then((res) => res.data)
+  })
+
+  ipcMain.handle('delete-project-logs', async (_, projectId: string) => {
+    return await axios
+      .delete(`http://localhost:1338/projects/${projectId}/logs`)
       .then((res) => res.data)
   })
 

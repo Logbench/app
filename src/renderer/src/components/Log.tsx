@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { motion } from 'motion/react'
 import { format, isAfter, subSeconds } from 'date-fns'
 import { isObjectLike } from '../utils/is-object-like'
 import ObjectTree from './ObjectTree'
@@ -15,7 +16,7 @@ const LogItem: React.FC<LogProps> = ({ log }) => {
   const [isCopied, setIsCopied] = useState(false)
 
   // Derived state for parsed log
-  const parsedLog = useMemo(() => {
+  const parsedLog: Log = useMemo(() => {
     if (
       typeof log.content === 'string' &&
       (log.content.startsWith('{') || log.content.startsWith('['))
@@ -68,9 +69,8 @@ const LogItem: React.FC<LogProps> = ({ log }) => {
   return (
     <div
       className={cn(
-        'grid grid-cols-4 border-b border-border-light px-4',
-        isAfter(new Date(parsedLog.createdAt), subSeconds(new Date(), 10)) &&
-          'fade-in bg-primary/10'
+        'grid grid-cols-4 border-b border-border-light px-4 bg-background-lighter',
+        isAfter(new Date(parsedLog.createdAt), subSeconds(new Date(), 1)) ? 'fade-in' : ''
       )}
     >
       {/* Date */}
