@@ -5,12 +5,18 @@ import MagnifyingGlassIcon from '../icons/MagnifyingGlass'
 import Log from './Log'
 import classNames from '../utils/classnames'
 import type { Log as ILog } from '../types/log'
-import { useParams } from 'react-router'
+import { useOutletContext, useParams } from 'react-router'
+import { ImperativePanelHandle } from 'react-resizable-panels'
 
-const ProjectLogs = ({ sidebar = undefined, isSidebarOpen = true }) => {
+const ProjectLogs = () => {
   const queryClient = useQueryClient()
 
   const { projectId } = useParams<{ projectId: string }>()
+
+  const { sidebar, isSidebarOpen } = useOutletContext<{
+    sidebar: React.MutableRefObject<ImperativePanelHandle | null>
+    isSidebarOpen: boolean
+  }>()
 
   // Server state
   const { data: project, isLoading: isProjectLoading } = useQuery({
@@ -67,7 +73,7 @@ const ProjectLogs = ({ sidebar = undefined, isSidebarOpen = true }) => {
               type="button"
               title="Toggle sidebar"
               className="no-drag group rounded-md hover:bg-foreground/5 transition duration-700 px-[9px] py-2"
-              //onClick={() => sidebar.current?.expand()}
+              onClick={() => sidebar.current?.expand()}
             >
               <SidebarLeftIcon className="fill-foreground/40 group-active:fill-foreground transition w-6" />
             </button>

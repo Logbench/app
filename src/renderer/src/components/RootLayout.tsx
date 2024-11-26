@@ -37,7 +37,7 @@ export default function RootLayout() {
 
         {/* Logs Panel */}
         <Panel className="flex flex-col">
-          <Outlet />
+          <Outlet context={{ sidebar, isSidebarOpen }} />
         </Panel>
       </PanelGroup>
     </div>
