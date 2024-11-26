@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react'
-import { motion } from 'motion/react'
 import { format, isAfter, subSeconds } from 'date-fns'
 import { isObjectLike } from '../utils/is-object-like'
 import ObjectTree from './ObjectTree'
@@ -69,8 +68,8 @@ const LogItem: React.FC<LogProps> = ({ log }) => {
   return (
     <div
       className={cn(
-        'grid grid-cols-4 border-b border-border-light px-4 bg-background-lighter',
-        isAfter(new Date(parsedLog.createdAt), subSeconds(new Date(), 1)) ? 'fade-in' : ''
+        'grid grid-cols-6 border-b border-border-light px-4 bg-background-lighter',
+        isAfter(new Date(parsedLog.createdAt), subSeconds(new Date(), 1)) && 'fade-in'
       )}
     >
       {/* Date */}
@@ -83,7 +82,7 @@ const LogItem: React.FC<LogProps> = ({ log }) => {
       </div>
 
       {/* Content */}
-      <div className="p-2 flex items-start gap-3 overflow-x-auto">
+      <div className="p-2 flex items-start gap-3 overflow-x-auto col-span-3">
         <button
           type="button"
           title="Copy log"

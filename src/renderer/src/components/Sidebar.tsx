@@ -55,7 +55,7 @@ const Sidebar = ({ sidebar }: SidebarProps) => {
           <button
             type="button"
             id="new-project"
-            className="transition duration-150 border border-border-lighter w-full rounded-md py-1 pl-8 pr-2 bg-background-lightest hover:bg-background-lightest-hover hover:border-border-lighter-hover focus:outline-none focus:ring-2 ring-primary/25 shadow shadow-background"
+            className="transition duration-150 border border-border-lighter w-full rounded-md py-1 pl-8 pr-2 bg-background-lightest active:bg-background-lightest-hover active:border-border-lighter-hover shadow shadow-background"
             onClick={() => {
               const projectName = window.prompt('Project name')
 
@@ -82,10 +82,10 @@ const Sidebar = ({ sidebar }: SidebarProps) => {
                   key={project.id}
                   //onClick={() => onChangeProjectId(project.id)}
                   className={classNames(
-                    'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md',
+                    'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md focus:bg-background-lightest transition',
                     project.id === projectId
                       ? 'bg-background-lightest'
-                      : 'hover:bg-background-lightest'
+                      : 'active:bg-background-lightest'
                   )}
                 >
                   <ShippingBoxFillIcon className="w-4 fill-primary" />

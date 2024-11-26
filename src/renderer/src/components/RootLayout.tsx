@@ -15,7 +15,7 @@ export default function RootLayout() {
         <Panel
           ref={sidebar}
           collapsible
-          minSize={20}
+          minSize={10}
           defaultSize={20}
           maxSize={40}
           onCollapse={() => setIsSidebarOpen(false)}

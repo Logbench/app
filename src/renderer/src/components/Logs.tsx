@@ -108,7 +108,7 @@ const ProjectLogs = ({ sidebar = undefined, isSidebarOpen = true }) => {
               mutateDeleteProjectLogs()
             }}
             disabled={isDeleteProjectLogsLoading}
-            className="text-foreground-muted hover:text-inherit transition"
+            className="text-foreground-muted active:text-inherit transition"
           >
             Clear
           </button>
@@ -119,18 +119,22 @@ const ProjectLogs = ({ sidebar = undefined, isSidebarOpen = true }) => {
         className="bg-background-lighter flex flex-col relative overflow-y-auto"
         style={{ height: 'calc(100% - 53px)' }}
       >
-        <div className="grid bg-background-lighter grid-cols-4 border-y border-border-light px-4 sticky top-0 z-10">
-          <div className="p-2">
-            <p className="text-foreground-muted truncate">Date</p>
-          </div>
-          <div className="p-2">
-            <p className="text-foreground-muted truncate">Client</p>
+        <div className="grid bg-background-lighter grid-cols-6 border-y border-border-light px-4 sticky top-0 z-10">
+          <button
+            type="button"
+            title="Order by date"
+            className="p-2 text-foreground-muted truncate text-left active:bg-background-lightest transition"
+          >
+            Date
+          </button>
+          <div className="p-2 col-span-3">
+            <p className="text-foreground-muted truncate">Content</p>
           </div>
           <div className="p-2 flex">
-            <p className="text-foreground-muted truncate">File</p>
+            <p className="text-foreground-muted truncate">Client</p>
           </div>
           <div className="p-2">
-            <p className="text-foreground-muted truncate">Content</p>
+            <p className="text-foreground-muted truncate">Location</p>
           </div>
         </div>
 
