@@ -5,12 +5,14 @@ import ShippingBoxFillIcon from '../icons/ShippingBoxFill'
 import classNames from '../utils/classnames'
 import { ImperativePanelHandle } from 'react-resizable-panels'
 import { Link, useParams } from 'react-router'
+import cn from '../utils/classnames'
 
 type SidebarProps = {
   sidebar: MutableRefObject<ImperativePanelHandle | null> // PaneAPI equivalent
+  isFullScreen: boolean
 }
 
-const Sidebar = ({ sidebar }: SidebarProps) => {
+const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
   // URL state
   const { projectId } = useParams<{ projectId: string }>()
 
@@ -36,7 +38,9 @@ const Sidebar = ({ sidebar }: SidebarProps) => {
   return (
     <div id="sidebar" className="flex flex-col h-full">
       {/* Header Section */}
-      <div className="pl-[82px] items-center h-[52px] flex item-center gap-3 drag">
+      <div
+        className={cn('h-[52px] flex items-center gap-3 drag', isFullScreen ? 'px-3' : 'pl-[82px]')}
+      >
         <button
           type="button"
           title="Toggle sidebar"
@@ -55,7 +59,7 @@ const Sidebar = ({ sidebar }: SidebarProps) => {
           <button
             type="button"
             id="new-project"
-            className="transition duration-150 border border-border-lighter w-full rounded-md py-1 pl-8 pr-2 bg-background-lightest active:bg-background-lightest-hover active:border-border-lighter-hover shadow shadow-background"
+            className="transition duration-150 border border-border-lighter w-full rounded-md py-1 px-4 bg-background-lightest active:bg-background-lightest-hover active:border-border-lighter-hover shadow shadow-background truncate"
             onClick={() => {
               const projectName = window.prompt('Project name')
 
@@ -97,16 +101,7 @@ const Sidebar = ({ sidebar }: SidebarProps) => {
         </div>
       </div>
 
-      <div className="p-5">
-        <button
-          onClick={() => {
-            window.api.reset()
-          }}
-          className="text-sm text-foreground-muted"
-        >
-          Reset
-        </button>
-      </div>
+      <div className="p-5"></div>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { Fragment, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import SidebarLeftIcon from '../icons/SidebarLeft'
 import MagnifyingGlassIcon from '../icons/MagnifyingGlass'
@@ -7,15 +7,20 @@ import classNames from '../utils/classnames'
 import type { Log as ILog } from '../types/log'
 import { useOutletContext, useParams } from 'react-router'
 import { ImperativePanelHandle } from 'react-resizable-panels'
+import usePersistRoute from '@renderer/hooks/use-persist-route'
+import Trash from '@renderer/icons/Checkmark copy'
 
 const ProjectLogs = () => {
+  usePersistRoute()
+
   const queryClient = useQueryClient()
 
   const { projectId } = useParams<{ projectId: string }>()
 
-  const { sidebar, isSidebarOpen } = useOutletContext<{
+  const { sidebar, isSidebarOpen, isFullScreen } = useOutletContext<{
     sidebar: React.MutableRefObject<ImperativePanelHandle | null>
     isSidebarOpen: boolean
+    isFullScreen: boolean
   }>()
 
   // Server state
@@ -64,7 +69,7 @@ const ProjectLogs = () => {
       <div
         className={classNames(
           'drag flex items-center justify-between gap-3 py-3 h-[53px]',
-          isSidebarOpen ? 'pl-6 pr-3' : 'pr-3 pl-[81px]'
+          isSidebarOpen ? 'pl-6 pr-3' : isFullScreen ? 'px-3' : 'pr-3 pl-[81px]'
         )}
       >
         <div className="flex items-center gap-3">
@@ -89,11 +94,13 @@ const ProjectLogs = () => {
               {isProjectLoading ? 'Loading...' : project?.name || 'Unknown Project'}
             </button>
             <p className="text-sm text-foreground-muted leading-none">
-              {isLogsLoading ? 'Loading logs...' : `${logs?.length || 0} logs`}
+              {isLogsLoading
+                ? 'Loading logs...'
+                : `${logs ? Object.values(logs).reduce((a, b) => a + b.length, 0) : 0} logs`}
             </p>
           </div>
         </div>
-        <div className="no-drag flex items-center gap-3 px-3">
+        <div className="no-drag flex items-center gap-2.5">
           <div className="relative">
             <MagnifyingGlassIcon className="w-3.5 fill-foreground absolute top-1/2 left-2.5 -translate-y-1/2" />
             <input
@@ -106,6 +113,9 @@ const ProjectLogs = () => {
           </div>
 
           <button
+            type="button"
+            title="Clear logs"
+            className="no-drag group rounded-md hover:bg-foreground/5 transition duration-700 px-[9px] py-2"
             onClick={() => {
               if (!projectId) {
                 return
@@ -113,10 +123,8 @@ const ProjectLogs = () => {
 
               mutateDeleteProjectLogs()
             }}
-            disabled={isDeleteProjectLogsLoading}
-            className="text-foreground-muted active:text-inherit transition"
           >
-            Clear
+            <Trash className="fill-foreground/40 group-active:fill-foreground transition h-5" />
           </button>
         </div>
       </div>
@@ -125,15 +133,15 @@ const ProjectLogs = () => {
         className="bg-background-lighter flex flex-col relative overflow-y-auto"
         style={{ height: 'calc(100% - 53px)' }}
       >
-        <div className="grid bg-background-lighter grid-cols-6 border-y border-border-light px-4 sticky top-0 z-10">
+        <div className="grid grid-cols-10 bg-background-lighter px-4 sticky top-0 z-10 border-t border-border-light">
           <button
             type="button"
             title="Order by date"
-            className="p-2 text-foreground-muted truncate text-left active:bg-background-lightest transition"
+            className="p-2 text-foreground-muted truncate text-left active:bg-background-lightest transition col-span-1"
           >
-            Date
+            Timestamp
           </button>
-          <div className="p-2 col-span-3">
+          <div className="p-2 col-span-6">
             <p className="text-foreground-muted truncate">Content</p>
           </div>
           <div className="p-2 flex">
@@ -146,7 +154,19 @@ const ProjectLogs = () => {
 
         {isLogsLoading && <p>Loading...</p>}
         {isLogsError && <p>Error: {logsError?.message || 'Unknown error'}</p>}
-        {logs?.map((log) => <Log key={log.id} log={log} />)}
+        {logs
+          ? Object.entries(logs).map(([date, logs]) => (
+              <Fragment key={date}>
+                <div className="flex justify-center bg-background-lighter px-4 sticky top-[36px] z-10 border-y border-border-light border-b-black">
+                  <p className="p-1.5 text-foreground-muted text-sm text-center">{date}</p>
+                </div>
+
+                {logs.map((log) => (
+                  <Log key={log.id} log={log} />
+                ))}
+              </Fragment>
+            ))
+          : null}
       </div>
     </>
   )

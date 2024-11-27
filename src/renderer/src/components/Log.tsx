@@ -68,21 +68,19 @@ const LogItem: React.FC<LogProps> = ({ log }) => {
   return (
     <div
       className={cn(
-        'grid grid-cols-6 border-b border-border-light px-4 bg-background-lighter',
+        'grid grid-cols-10 border-b border-black bg-background px-4',
         isAfter(new Date(parsedLog.createdAt), subSeconds(new Date(), 1)) && 'fade-in'
       )}
     >
       {/* Date */}
-      <div className="p-2">
+      <div className="p-2 col-span-1">
         <p className="text-foreground-muted truncate">
-          {parsedLog.createdAt
-            ? format(new Date(parsedLog.createdAt), 'MMM dd yyyy HH:mm:ss:SSS')
-            : 'No date'}
+          {parsedLog.createdAt ? format(new Date(parsedLog.createdAt), 'HH:mm:ss:SSS') : 'No date'}
         </p>
       </div>
 
       {/* Content */}
-      <div className="p-2 flex items-start gap-3 overflow-x-auto col-span-3">
+      <div className="p-2 flex items-start gap-3 overflow-x-auto col-span-6">
         <button
           type="button"
           title="Copy log"

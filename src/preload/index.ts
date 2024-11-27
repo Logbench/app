@@ -1,13 +1,10 @@
 import { ipcRenderer, contextBridge, IpcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { Project } from './types/project'
-import { Log } from './types/log'
+import { Log, LogsResult } from './types/log'
 
 // Custom APIs for rendere
 const api = {
-  reset: (): Promise<unknown> => {
-    return ipcRenderer.invoke('reset')
-  },
   showContextMenu: (logId: string): Promise<unknown> => {
     return ipcRenderer.invoke('show-log-context-menu', logId)
   },
@@ -17,7 +14,7 @@ const api = {
   getProject: (projectId: string): Promise<Project> => {
     return ipcRenderer.invoke('get-project', projectId)
   },
-  getProjectLogs: (projectId: string): Promise<Log[]> => {
+  getProjectLogs: (projectId: string): Promise<LogsResult> => {
     return ipcRenderer.invoke('get-project-logs', projectId)
   },
   deleteProjectLogs: (projectId: string): Promise<Log[]> => {
@@ -33,7 +30,11 @@ const api = {
     ipcRenderer.on('new-log', (_event, value) => callback(value)),
   removeNewLogListeners: (): void => {
     ipcRenderer.removeAllListeners('new-log')
-  }
+  },
+  onEnterFullScreen: (callback: () => void): IpcRenderer =>
+    ipcRenderer.on('enter-full-screen', () => callback()),
+  onLeaveFullScreen: (callback: () => void): IpcRenderer =>
+    ipcRenderer.on('leave-full-screen', () => callback())
 
   //onMenuItemClicked: (callback: (action: string, logId: string) => void): IpcRenderer =>
   //  ipcRenderer.on('menu-item-clicked', (_, action: string, logId: string) =>

@@ -1,12 +1,31 @@
 import { PanelGroup, Panel, PanelResizeHandle, ImperativePanelHandle } from 'react-resizable-panels'
-import { Outlet } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 import Sidebar from './Sidebar'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export default function RootLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true)
+  const [isFullScreen, setIsFullScreen] = useState<boolean>(false)
+  const navigate = useNavigate()
 
   const sidebar = useRef<ImperativePanelHandle | null>(null)
+
+  useEffect(() => {
+    const lastRoute = localStorage.getItem('lastRoute')
+    if (lastRoute) {
+      navigate(lastRoute, { replace: true }) // Navigate to the saved route
+    }
+  }, [navigate])
+
+  useEffect(() => {
+    window.api.onEnterFullScreen(() => {
+      setIsFullScreen(true)
+    })
+
+    window.api.onLeaveFullScreen(() => {
+      setIsFullScreen(false)
+    })
+  }, [])
 
   return (
     <div className="h-screen">
@@ -22,7 +41,7 @@ export default function RootLayout() {
           onExpand={() => setIsSidebarOpen(true)}
           className="bg-background-lighter"
         >
-          <Sidebar sidebar={sidebar} />
+          <Sidebar sidebar={sidebar} isFullScreen={isFullScreen} />
         </Panel>
 
         {/* Panel Resizer */}
@@ -32,12 +51,12 @@ export default function RootLayout() {
             sidebar.current?.resize(20) // Resize to 20% width
           }}
         >
-          <div className="w-px h-full bg-border-light"></div>
+          <div className="w-px h-full bg-black"></div>
         </PanelResizeHandle>
 
         {/* Logs Panel */}
         <Panel className="flex flex-col">
-          <Outlet context={{ sidebar, isSidebarOpen }} />
+          <Outlet context={{ sidebar, isSidebarOpen, isFullScreen }} />
         </Panel>
       </PanelGroup>
     </div>

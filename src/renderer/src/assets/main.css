@@ -21,7 +21,7 @@
     --foreground-muted: 200 4.76 50;
 
     --border: 28 8.11 0.5;
-    --border-light: 200 4.76 12;
+    --border-light: 200 4.76 10;
     --border-lighter: 200 4.76 18;
     --border-lighter-hover: 200 4.76 22;
 
@@ -32,30 +32,10 @@
     --jsonBracketHoverBackground: 0 0 12;
     --jsonSeparatorColor: 25.9 84.2 57.8;
     --jsonKeyColor: 155 32.5 59.2;
-    --jsonValColor: 61.6 45.1 50;
-    --jsonValStringColor: 35.9 104.2 58;
+    --jsonValColor: 0 0 100;
+    --jsonValStringColor: 0 0 100;
     --jsonValNumberColor: 343 36.4 66.1;
     --jsonValBooleanColor: 155 32.5 59.2;
-  }
-
-  html[data-theme='tokyonight'] {
-    --background: 225 15 14;
-    --background-darker: 225 15 11;
-    --background-lighter: 225 15 20;
-    --foreground: 0 0 95;
-    --foreground-inverted: 0 0 5;
-    --foreground-muted: 225 10 60;
-    --border: 225 15 10;
-    --border-light: 225 15 25;
-    --primary: 220 50 60;
-    --jsonBracketColor: 220 50 60;
-    --jsonBracketHoverBackground: 225 15 18;
-    --jsonSeparatorColor: 220 50 60;
-    --jsonKeyColor: 260 40 70;
-    --jsonValColor: 180 40 65;
-    --jsonValStringColor: 150 50 65;
-    --jsonValNumberColor: 40 80 55;
-    --jsonValBooleanColor: 0 70 65;
   }
 
   /*::-moz-selection {*/
