@@ -120,7 +120,7 @@ const ProjectLogs = () => {
     <>
       <div
         className={classNames(
-          'drag flex items-center justify-between gap-3 py-3 h-[53px]',
+          'drag flex items-center justify-between gap-3 py-3 h-[53px] bg-background-lighter',
           isSidebarOpen ? 'pl-6 pr-3' : isFullScreen ? 'px-3' : 'pr-3 pl-[81px]'
         )}
       >
@@ -183,7 +183,7 @@ const ProjectLogs = () => {
       </div>
 
       <div
-        className="bg-background-lighter flex flex-col relative overflow-y-auto"
+        className="flex flex-col relative overflow-y-auto"
         style={{ height: 'calc(100% - 53px)' }}
       >
         <div className="grid grid-cols-10 bg-background-lighter px-4 sticky top-0 z-10 border-t border-border-light">
@@ -210,23 +210,27 @@ const ProjectLogs = () => {
         {logs
           ? Object.entries(logs).map(([date, logs]) => (
               <Fragment key={date}>
-                <div className="flex justify-center bg-background-lighter px-4 sticky top-[36px] z-10 border-y border-border-light border-b-black">
+                <div className="flex justify-center px-4 sticky top-[36px] z-10 border-y border-border-light bg-background">
                   <p className="p-1.5 text-foreground-muted text-sm text-center">{date}</p>
                 </div>
 
-                {logs.map((log) => (
-                  <Log
-                    key={log.id}
-                    log={log}
-                    isShowingContextMenu={logIdShowingContextMenu === log.id}
-                    onOpenContextMenu={() => {
-                      setLogIdShowingContextMenu(log.id)
-                      window.api
-                        .showContextMenu(log)
-                        .catch((err: unknown) => console.error('Failed to show context menu:', err))
-                    }}
-                  />
-                ))}
+                <div className="p-3 space-y-0.5">
+                  {logs.map((log) => (
+                    <Log
+                      key={log.id}
+                      log={log}
+                      isShowingContextMenu={logIdShowingContextMenu === log.id}
+                      onOpenContextMenu={() => {
+                        setLogIdShowingContextMenu(log.id)
+                        window.api
+                          .showContextMenu(log)
+                          .catch((err: unknown) =>
+                            console.error('Failed to show context menu:', err)
+                          )
+                      }}
+                    />
+                  ))}
+                </div>
               </Fragment>
             ))
           : null}

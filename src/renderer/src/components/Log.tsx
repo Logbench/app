@@ -41,9 +41,9 @@ const LogItem: React.FC<LogProps> = ({ log, onOpenContextMenu, isShowingContextM
     <div
       onContextMenu={handleContextMenu}
       className={cn(
-        'grid grid-cols-10 border-b border-black bg-background px-4',
+        'grid grid-cols-10 even:bg-background-lighter odd:bg-background px-4 rounded-md',
         isAfter(new Date(parsedLog.createdAt), subSeconds(new Date(), 1)) && 'fade-in',
-        isShowingContextMenu && 'bg-primary/5'
+        isShowingContextMenu && 'ring-1 ring-primary'
       )}
     >
       {/* Date */}
