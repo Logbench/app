@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import SidebarLeftIcon from '../icons/SidebarLeft'
 import MagnifyingGlassIcon from '../icons/MagnifyingGlass'
@@ -8,20 +8,26 @@ import type { Log as ILog } from '../types/log'
 import { useOutletContext, useParams } from 'react-router'
 import { ImperativePanelHandle } from 'react-resizable-panels'
 import usePersistRoute from '@renderer/hooks/use-persist-route'
-import Trash from '@renderer/icons/Checkmark copy'
+import Trash from '@renderer/icons/Trash'
+import { format } from 'date-fns'
 
 const ProjectLogs = () => {
   usePersistRoute()
 
   const queryClient = useQueryClient()
 
+  // URL state
   const { projectId } = useParams<{ projectId: string }>()
 
+  // Outlet context
   const { sidebar, isSidebarOpen, isFullScreen } = useOutletContext<{
     sidebar: React.MutableRefObject<ImperativePanelHandle | null>
     isSidebarOpen: boolean
     isFullScreen: boolean
   }>()
+
+  // Local state
+  const [logIdShowingContextMenu, setLogIdShowingContextMenu] = useState<string>()
 
   // Server state
   const { data: project, isLoading: isProjectLoading } = useQuery({
@@ -63,6 +69,52 @@ const ProjectLogs = () => {
       window.api.removeNewLogListeners()
     }
   }, [queryClient, projectId])
+
+  useEffect(() => {
+    const handleMenuItemClick = async (event: string, log: ILog) => {
+      if (event === 'copy-log') {
+        try {
+          await navigator.clipboard.writeText(JSON.stringify(log, null, 2))
+        } catch {
+          window.alert('Failed to copy to clipboard')
+        }
+      } else if (event === 'copy-log-timestamp') {
+        try {
+          await navigator.clipboard.writeText(
+            format(new Date(log.createdAt), 'MMM d yyyy, HH:mm:ss:SSS')
+          )
+        } catch {
+          window.alert('Failed to copy to clipboard')
+        }
+      } else if (event === 'copy-log-content') {
+        try {
+          await navigator.clipboard.writeText(log.content)
+        } catch {
+          window.alert('Failed to copy to clipboard')
+        }
+      } else if (event === 'copy-log-client') {
+        try {
+          await navigator.clipboard.writeText('Coming soon') // TODO: Update
+        } catch {
+          window.alert('Failed to copy to clipboard')
+        }
+      } else if (event === 'copy-log-location') {
+        try {
+          await navigator.clipboard.writeText('Coming soon') // TODO: Update
+        } catch {
+          window.alert('Failed to copy to clipboard')
+        }
+      }
+    }
+
+    window.api.onMenuItemClicked(handleMenuItemClick)
+
+    const handleCloseContextMenu = () => {
+      setLogIdShowingContextMenu(undefined)
+    }
+
+    window.api.onCloseLogContextMenu(handleCloseContextMenu)
+  }, [])
 
   return (
     <>
@@ -116,6 +168,7 @@ const ProjectLogs = () => {
             type="button"
             title="Clear logs"
             className="no-drag group rounded-md hover:bg-foreground/5 transition duration-700 px-[9px] py-2"
+            disabled={isDeleteProjectLogsLoading}
             onClick={() => {
               if (!projectId) {
                 return
@@ -162,7 +215,17 @@ const ProjectLogs = () => {
                 </div>
 
                 {logs.map((log) => (
-                  <Log key={log.id} log={log} />
+                  <Log
+                    key={log.id}
+                    log={log}
+                    isShowingContextMenu={logIdShowingContextMenu === log.id}
+                    onOpenContextMenu={() => {
+                      setLogIdShowingContextMenu(log.id)
+                      window.api
+                        .showContextMenu(log)
+                        .catch((err: unknown) => console.error('Failed to show context menu:', err))
+                    }}
+                  />
                 ))}
               </Fragment>
             ))

@@ -5,8 +5,11 @@ import { Log, LogsResult } from './types/log'
 
 // Custom APIs for rendere
 const api = {
-  showContextMenu: (logId: string): Promise<unknown> => {
-    return ipcRenderer.invoke('show-log-context-menu', logId)
+  showContextMenu: (log: Log): Promise<unknown> => {
+    return ipcRenderer.invoke('show-log-context-menu', log)
+  },
+  onCloseLogContextMenu: (callback: (logId: string) => void): IpcRenderer => {
+    return ipcRenderer.on('close-log-context-menu', (_, logId: string) => callback(logId))
   },
   getProjects: (): Promise<Project[]> => {
     return ipcRenderer.invoke('get-projects')
@@ -34,12 +37,9 @@ const api = {
   onEnterFullScreen: (callback: () => void): IpcRenderer =>
     ipcRenderer.on('enter-full-screen', () => callback()),
   onLeaveFullScreen: (callback: () => void): IpcRenderer =>
-    ipcRenderer.on('leave-full-screen', () => callback())
-
-  //onMenuItemClicked: (callback: (action: string, logId: string) => void): IpcRenderer =>
-  //  ipcRenderer.on('menu-item-clicked', (_, action: string, logId: string) =>
-  //    callback(action, logId)
-  //  )
+    ipcRenderer.on('leave-full-screen', () => callback()),
+  onMenuItemClicked: (callback: (action: string, log: Log) => void): IpcRenderer =>
+    ipcRenderer.on('menu-item-clicked', (_, action: string, log: Log) => callback(action, log))
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

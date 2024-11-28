@@ -1,10 +1,10 @@
 import icon from '../../resources/icon.png?asset'
-import { BrowserWindow, app, ipcMain, nativeTheme, shell } from 'electron'
+import { BrowserWindow, Menu, app, ipcMain, nativeTheme, shell } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import axios from 'axios'
 import { io } from 'socket.io-client'
-import { LogsResult } from '../preload/types/log'
+import { Log, LogsResult } from '../preload/types/log'
 
 const socket = io('http://localhost:1338')
 
@@ -78,25 +78,57 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  //ipcMain.handle('show-log-context-menu', (event, logId: string) => {
-  //  const template = [
-  //    {
-  //      label: 'Copy log',
-  //      click: (): void => {
-  //        console.log('Click!')
-  //        event.sender.send('menu-item-clicked', 'copy-log', logId)
-  //      }
-  //    }
-  //  ]
-  //
-  //  const menu = Menu.buildFromTemplate(template)
-  //
-  //  const window = BrowserWindow.fromWebContents(event.sender)
-  //
-  //  if (window) {
-  //    menu.popup({ window })
-  //  }
-  //})
+  ipcMain.handle('show-log-context-menu', (event, log: Log) => {
+    const template = [
+      {
+        label: 'Copy',
+        submenu: [
+          {
+            label: 'Entire log',
+            click: (): void => {
+              event.sender.send('menu-item-clicked', 'copy-log', log)
+            }
+          },
+          {
+            label: 'Timestamp',
+            click: (): void => {
+              event.sender.send('menu-item-clicked', 'copy-log-timestamp', log)
+            }
+          },
+          {
+            label: 'Content',
+            click: (): void => {
+              event.sender.send('menu-item-clicked', 'copy-log-content', log)
+            }
+          },
+          {
+            label: 'Client',
+            click: (): void => {
+              event.sender.send('menu-item-clicked', 'copy-log-client', log)
+            }
+          },
+          {
+            label: 'Location',
+            click: (): void => {
+              event.sender.send('menu-item-clicked', 'copy-log-location', log)
+            }
+          }
+        ]
+      }
+    ]
+
+    const menu = Menu.buildFromTemplate(template)
+
+    const window = BrowserWindow.fromWebContents(event.sender)
+
+    if (window) {
+      menu.popup({ window })
+
+      menu.on('menu-will-close', () => {
+        window.webContents.send('close-log-context-menu', log)
+      })
+    }
+  })
 
   ipcMain.handle('get-projects', async () => {
     return await axios.get('http://localhost:1338/projects').then((res) => res.data)
