@@ -81,8 +81,6 @@ const JsonTree: React.FC<JsonTreeProps> = ({
       <>
         <span
           className={`_jsonBkt ${isArray ? 'isArray' : ''}`}
-          role="button"
-          tabIndex={0}
           onClick={handleToggleCollapse}
           onKeyDown={handleKeyPress}
         >
@@ -97,8 +95,6 @@ const JsonTree: React.FC<JsonTreeProps> = ({
     <>
       <span
         className={`_jsonBkt ${isArray ? 'isArray' : ''}`}
-        role="button"
-        tabIndex={0}
         onClick={handleToggleCollapse}
         onKeyDown={handleKeyPress}
       >
@@ -133,8 +129,6 @@ const JsonTree: React.FC<JsonTreeProps> = ({
       </ul>
       <span
         className={`_jsonBkt ${isArray ? 'isArray' : ''}`}
-        role="button"
-        tabIndex={0}
         onClick={handleToggleCollapse}
         onKeyDown={handleKeyPress}
       >

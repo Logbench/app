@@ -210,11 +210,11 @@ const ProjectLogs = () => {
         {logs
           ? Object.entries(logs).map(([date, logs]) => (
               <Fragment key={date}>
-                <div className="flex justify-center px-4 sticky top-[36px] z-10 border-y border-border-light bg-background">
+                <div className="flex justify-center bg-background px-4 sticky top-[36px] z-10 border-y border-border-light">
                   <p className="p-1.5 text-foreground-muted text-sm text-center">{date}</p>
                 </div>
 
-                <div className="p-3 space-y-0.5">
+                <div className="p-4 space-y-1">
                   {logs.map((log) => (
                     <Log
                       key={log.id}
