@@ -20,8 +20,11 @@ const api = {
   getProjectLogs: (projectId: string): Promise<LogsResult> => {
     return ipcRenderer.invoke('get-project-logs', projectId)
   },
-  deleteProjectLogs: (projectId: string): Promise<Log[]> => {
-    return ipcRenderer.invoke('delete-project-logs', projectId)
+  deleteProjectLogs: (data: { projectId: string; date?: Date }): Promise<Log[]> => {
+    return ipcRenderer.invoke('delete-project-logs', data)
+  },
+  deleteLog: (logId: string): Promise<Log> => {
+    return ipcRenderer.invoke('delete-log', logId)
   },
   createProject: async (name: string): Promise<Project> => {
     return ipcRenderer.invoke('create-project', name)

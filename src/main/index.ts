@@ -79,7 +79,7 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('show-log-context-menu', (event, log: Log) => {
-    const template = [
+    const menu = Menu.buildFromTemplate([
       {
         label: 'Copy',
         submenu: [
@@ -114,10 +114,14 @@ app.whenReady().then(() => {
             }
           }
         ]
+      },
+      {
+        label: 'Delete',
+        click: (): void => {
+          event.sender.send('menu-item-clicked', 'delete-log', log)
+        }
       }
-    ]
-
-    const menu = Menu.buildFromTemplate(template)
+    ])
 
     const window = BrowserWindow.fromWebContents(event.sender)
 
@@ -144,10 +148,14 @@ app.whenReady().then(() => {
       .then((res) => res.data)
   })
 
-  ipcMain.handle('delete-project-logs', async (_, projectId: string) => {
+  ipcMain.handle('delete-project-logs', async (_, data: { projectId: string; date?: Date }) => {
     return await axios
-      .delete(`http://localhost:1338/projects/${projectId}/logs`)
+      .delete(`http://localhost:1338/projects/${data.projectId}/logs?date=${data.date}`)
       .then((res) => res.data)
+  })
+
+  ipcMain.handle('delete-log', async (_, logId: string) => {
+    return await axios.delete(`http://localhost:1338/logs/${logId}`).then((res) => res.data)
   })
 
   ipcMain.handle('create-project', async (_, name: string) => {

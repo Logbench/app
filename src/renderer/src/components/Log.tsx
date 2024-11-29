@@ -31,8 +31,6 @@ const LogItem: React.FC<LogProps> = ({ log, onOpenContextMenu, isShowingContextM
     return log
   }, [log])
 
-  const [isFocused, setIsFocused] = React.useState<boolean>(false)
-
   // Context menu handler
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
@@ -43,21 +41,15 @@ const LogItem: React.FC<LogProps> = ({ log, onOpenContextMenu, isShowingContextM
     <div
       onContextMenu={handleContextMenu}
       tabIndex={0}
-      onFocus={() => {
-        setIsFocused(true)
-      }}
-      onBlur={() => {
-        setIsFocused(false)
-      }}
       onMouseDown={(e) => {
         if (e.nativeEvent.button === 2) {
           e.nativeEvent.preventDefault()
         }
       }}
       className={cn(
-        'grid grid-cols-10 even:bg-background-lighter odd:bg-background px-4 focus:outline-none focus:bg-primary/5 rounded-lg',
+        'grid grid-cols-10 px-4 focus:outline-none border-b border-border-light bg-background focus:bg-primary/5',
         isAfter(new Date(parsedLog.createdAt), subSeconds(new Date(), 1)) && 'fade-in',
-        isShowingContextMenu && cn('ring-1', isFocused ? 'ring-foreground' : 'ring-primary')
+        isShowingContextMenu && 'bg-background-lighter'
       )}
     >
       {/* Date */}

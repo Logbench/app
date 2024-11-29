@@ -49,7 +49,16 @@ const ProjectLogs = () => {
   })
 
   const { mutate: mutateDeleteProjectLogs, isPending: isDeleteProjectLogsLoading } = useMutation({
-    mutationFn: () => window.api.deleteProjectLogs(projectId!),
+    mutationFn: (date?: Date) =>
+      window.api.deleteProjectLogs({
+        projectId: projectId!,
+        date
+      }),
+    onSettled: () => refetchProjectLogs()
+  })
+
+  const { mutateAsync: mutateDeleteLog } = useMutation({
+    mutationFn: (logId: string) => window.api.deleteLog(logId),
     onSettled: () => refetchProjectLogs()
   })
 
@@ -101,6 +110,12 @@ const ProjectLogs = () => {
       } else if (event === 'copy-log-location') {
         try {
           await navigator.clipboard.writeText('Coming soon') // TODO: Update
+        } catch {
+          window.alert('Failed to copy to clipboard')
+        }
+      } else if (event === 'delete-log') {
+        try {
+          mutateDeleteLog(log.id)
         } catch {
           window.alert('Failed to copy to clipboard')
         }
@@ -166,7 +181,7 @@ const ProjectLogs = () => {
 
           <button
             type="button"
-            title="Clear logs"
+            title={`Clear all logs for ${project?.name ?? 'project'}`}
             className="no-drag group rounded-md hover:bg-foreground/5 transition duration-700 px-[9px] py-2"
             disabled={isDeleteProjectLogsLoading}
             onClick={() => {
@@ -186,7 +201,7 @@ const ProjectLogs = () => {
         className="flex flex-col relative overflow-y-auto"
         style={{ height: 'calc(100% - 53px)' }}
       >
-        <div className="grid grid-cols-10 bg-background-lighter px-4 sticky top-0 z-10 border-t border-border-light">
+        <div className="grid grid-cols-10 bg-background px-4 sticky top-0 z-10 border-t border-border-light">
           <button
             type="button"
             title="Order by date"
@@ -210,27 +225,43 @@ const ProjectLogs = () => {
         {logs
           ? Object.entries(logs).map(([date, logs]) => (
               <Fragment key={date}>
-                <div className="flex justify-center bg-background px-4 sticky top-[36px] z-10 border-y border-border-light">
-                  <p className="p-1.5 text-foreground-muted text-sm text-center">{date}</p>
+                <div className="bg-background-lighter sticky top-[36px] z-10 border-y border-border-light pl-4 pr-3 py-0.5">
+                  <div className="flex items-center justify-between">
+                    <p className="p-2 text-foreground-muted text-sm uppercase tracking-wider font-light">
+                      {date}
+                    </p>
+
+                    <button
+                      type="button"
+                      title={`Clear logs from ${date}`}
+                      className="no-drag group rounded-md hover:bg-foreground/5 transition duration-700 px-[9px] py-1.5"
+                      disabled={isDeleteProjectLogsLoading}
+                      onClick={() => {
+                        if (!projectId) {
+                          return
+                        }
+
+                        mutateDeleteProjectLogs(new Date(logs[0].createdAt))
+                      }}
+                    >
+                      <Trash className="fill-foreground/40 group-active:fill-foreground transition h-5" />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="p-4 space-y-1">
-                  {logs.map((log) => (
-                    <Log
-                      key={log.id}
-                      log={log}
-                      isShowingContextMenu={logIdShowingContextMenu === log.id}
-                      onOpenContextMenu={() => {
-                        setLogIdShowingContextMenu(log.id)
-                        window.api
-                          .showContextMenu(log)
-                          .catch((err: unknown) =>
-                            console.error('Failed to show context menu:', err)
-                          )
-                      }}
-                    />
-                  ))}
-                </div>
+                {logs.map((log) => (
+                  <Log
+                    key={log.id}
+                    log={log}
+                    isShowingContextMenu={logIdShowingContextMenu === log.id}
+                    onOpenContextMenu={() => {
+                      setLogIdShowingContextMenu(log.id)
+                      window.api
+                        .showContextMenu(log)
+                        .catch((err: unknown) => console.error('Failed to show context menu:', err))
+                    }}
+                  />
+                ))}
               </Fragment>
             ))
           : null}
