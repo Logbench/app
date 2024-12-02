@@ -42,7 +42,10 @@ const api = {
   onLeaveFullScreen: (callback: () => void): IpcRenderer =>
     ipcRenderer.on('leave-full-screen', () => callback()),
   onMenuItemClicked: (callback: (action: string, log: Log) => void): IpcRenderer =>
-    ipcRenderer.on('menu-item-clicked', (_, action: string, log: Log) => callback(action, log))
+    ipcRenderer.on('menu-item-clicked', (_, action: string, log: Log) => callback(action, log)),
+  showProjectContextMenu: (project: Project): Promise<unknown> => {
+    return ipcRenderer.invoke('show-project-context-menu', project)
+  }
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

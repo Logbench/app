@@ -1,7 +1,7 @@
 import React from 'react'
 
 type SidebarLeftProps = {
-  className?: string // Optional, to allow for no className
+  className?: string
 }
 
 const SidebarLeft: React.FC<SidebarLeftProps> = ({ className }) => {

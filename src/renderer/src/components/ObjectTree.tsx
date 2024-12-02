@@ -3,6 +3,7 @@ import classNames from '../utils/classnames'
 import ObjectTree from './ObjectTree'
 
 type JsonTreeProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   json: any
   depth?: number
   _cur?: number

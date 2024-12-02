@@ -1,7 +1,7 @@
 import React from 'react'
 
 type MagnifyingGlassProps = {
-  className?: string // Optional, to allow for no className
+  className?: string
 }
 
 const MagnifyingGlass: React.FC<MagnifyingGlassProps> = ({ className }) => {

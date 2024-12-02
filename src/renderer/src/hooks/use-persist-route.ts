@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 
-const usePersistRoute = () => {
+const usePersistRoute = (): void => {
   const location = useLocation()
 
   useEffect(() => {

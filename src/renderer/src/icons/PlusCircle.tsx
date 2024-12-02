@@ -1,7 +1,7 @@
 import React from 'react'
 
 type PlusCircleProps = {
-  className?: string // Optional, to allow for no className
+  className?: string
 }
 
 const PlusCircle: React.FC<PlusCircleProps> = ({ className }) => {

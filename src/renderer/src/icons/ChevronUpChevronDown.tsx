@@ -1,7 +1,7 @@
 import React from 'react'
 
 type ChevronUpChevronDownProps = {
-  className?: string // Optional, to allow for no className
+  className?: string
 }
 
 const ChevronUpChevronDown: React.FC<ChevronUpChevronDownProps> = ({ className }) => {

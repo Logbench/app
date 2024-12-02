@@ -32,7 +32,7 @@ const LogItem: React.FC<LogProps> = ({ log, onOpenContextMenu, isShowingContextM
   }, [log])
 
   // Context menu handler
-  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>): void => {
     event.preventDefault()
     onOpenContextMenu()
   }
@@ -77,7 +77,7 @@ const LogItem: React.FC<LogProps> = ({ log, onOpenContextMenu, isShowingContextM
 
       {/* Location */}
       <div className="p-2">
-        <p className="text-foreground-muted truncate">tree.tsx:2031:12</p>
+        <p className="text-foreground-muted truncate"></p>
       </div>
     </div>
   )

@@ -74,8 +74,13 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
 
           {projects?.length > 0 ? (
             <div className="-space-y-0.5">
-              {filteredProjects.map((project: { id: string; name: string }) => (
+              {filteredProjects.map((project) => (
                 <Link
+                  onContextMenu={() => {
+                    window.api
+                      .showProjectContextMenu(project)
+                      .catch((err: unknown) => console.error('Failed to show context menu:', err))
+                  }}
                   to={`/${project.id}`}
                   key={project.id}
                   className={cn(

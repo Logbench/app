@@ -1,12 +1,14 @@
 import icon from '../../resources/icon.png?asset'
-import { BrowserWindow, Menu, app, ipcMain, nativeTheme, shell } from 'electron'
+import { BrowserWindow, Menu, app, clipboard, ipcMain, nativeTheme, shell } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import axios from 'axios'
 import { io } from 'socket.io-client'
 import { Log, LogsResult } from '../preload/types/log'
+import { Project } from '../preload/types/project'
+import { WORKER_URL } from '../shared/config'
 
-const socket = io('http://localhost:1338')
+const socket = io(WORKER_URL)
 
 function createWindow(): void {
   // Create the browser window.
@@ -102,9 +104,9 @@ app.whenReady().then(() => {
             }
           },
           {
-            label: 'Client',
+            label: 'Project',
             click: (): void => {
-              event.sender.send('menu-item-clicked', 'copy-log-client', log)
+              event.sender.send('menu-item-clicked', 'copy-log-project', log)
             }
           },
           {
@@ -135,33 +137,54 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('get-projects', async () => {
-    return await axios.get('http://localhost:1338/projects').then((res) => res.data)
+    return await axios.get(`${WORKER_URL}/projects`).then((res) => res.data)
   })
 
   ipcMain.handle('get-project', async (_, projectId: string) => {
-    return await axios.get(`http://localhost:1338/projects/${projectId}`).then((res) => res.data)
+    return await axios.get(`${WORKER_URL}/projects/${projectId}`).then((res) => res.data)
   })
 
   ipcMain.handle('get-project-logs', async (_, projectId: string) => {
     return await axios
-      .get<LogsResult>(`http://localhost:1338/projects/${projectId}/logs`)
+      .get<LogsResult>(`${WORKER_URL}/projects/${projectId}/logs`)
       .then((res) => res.data)
   })
 
   ipcMain.handle('delete-project-logs', async (_, data: { projectId: string; date?: Date }) => {
     return await axios
-      .delete(`http://localhost:1338/projects/${data.projectId}/logs?date=${data.date ?? ''}`)
+      .delete(`${WORKER_URL}/projects/${data.projectId}/logs?date=${data.date ?? ''}`)
       .then((res) => res.data)
   })
 
   ipcMain.handle('delete-log', async (_, logId: string) => {
-    return await axios.delete(`http://localhost:1338/logs/${logId}`).then((res) => res.data)
+    return await axios.delete(`${WORKER_URL}/logs/${logId}`).then((res) => res.data)
   })
 
   ipcMain.handle('create-project', async (_, name: string) => {
-    return await axios.post('http://localhost:1338/projects', {
+    return await axios.post(`${WORKER_URL}/projects`, {
       name
     })
+  })
+
+  ipcMain.handle('show-project-context-menu', (event, project: Project) => {
+    const menu = Menu.buildFromTemplate([
+      {
+        label: 'Copy logs URL (POST)',
+        click: (): void => {
+          clipboard.writeText(`${WORKER_URL}/projects/${project.id}/logs`)
+        }
+      }
+    ])
+
+    const window = BrowserWindow.fromWebContents(event.sender)
+
+    if (window) {
+      menu.popup({ window })
+
+      menu.on('menu-will-close', () => {
+        window.webContents.send('close-project-context-menu', project)
+      })
+    }
   })
 
   createWindow()

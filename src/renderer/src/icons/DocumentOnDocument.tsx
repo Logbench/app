@@ -1,7 +1,7 @@
 import React from 'react'
 
 type DocumentOnDocumentProps = {
-  className?: string // Optional, to allow for no className
+  className?: string
 }
 
 const DocumentOnDocument: React.FC<DocumentOnDocumentProps> = ({ className }) => {

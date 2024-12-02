@@ -1,7 +1,7 @@
 import React from 'react'
 
 type PlusProps = {
-  className?: string // Optional, to allow for no className
+  className?: string
 }
 
 const Plus: React.FC<PlusProps> = ({ className }) => {

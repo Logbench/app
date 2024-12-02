@@ -1,7 +1,7 @@
 import React from 'react'
 
 type ShippingBoxFillProps = {
-  className?: string // Optional, to allow for no className
+  className?: string
 }
 
 const ShippingBoxFill: React.FC<ShippingBoxFillProps> = ({ className }) => {

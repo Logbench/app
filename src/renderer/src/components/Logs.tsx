@@ -1,17 +1,18 @@
-import { Fragment, useEffect, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import SidebarLeftIcon from '../icons/SidebarLeft'
-import MagnifyingGlassIcon from '../icons/MagnifyingGlass'
-import Log from './Log'
-import classNames from '../utils/classnames'
-import type { Log as ILog, LogsResult } from '../types/log'
-import { useOutletContext, useParams } from 'react-router'
-import { ImperativePanelHandle } from 'react-resizable-panels'
 import usePersistRoute from '@renderer/hooks/use-persist-route'
+import EllipsisCircle from '@renderer/icons/EllipsisCircle'
 import Trash from '@renderer/icons/Trash'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
+import { Fragment, useEffect, useState } from 'react'
+import { ImperativePanelHandle } from 'react-resizable-panels'
+import { useOutletContext, useParams } from 'react-router'
+import MagnifyingGlassIcon from '../icons/MagnifyingGlass'
+import SidebarLeftIcon from '../icons/SidebarLeft'
+import type { Log as ILog, LogsResult } from '../types/log'
+import classNames from '../utils/classnames'
+import Log from './Log'
 
-const ProjectLogs = () => {
+export default function ProjectLogs() {
   usePersistRoute()
 
   const queryClient = useQueryClient()
@@ -78,13 +79,13 @@ const ProjectLogs = () => {
       })
     })
 
-    return () => {
+    return (): void => {
       window.api.removeNewLogListeners()
     }
   }, [queryClient, projectId])
 
   useEffect(() => {
-    const handleMenuItemClick = async (event: string, log: ILog) => {
+    const handleMenuItemClick = async (event: string, log: ILog): Promise<void> => {
       if (event === 'copy-log') {
         try {
           await navigator.clipboard.writeText(JSON.stringify(log, null, 2))
@@ -105,7 +106,7 @@ const ProjectLogs = () => {
         } catch {
           window.alert('Failed to copy to clipboard')
         }
-      } else if (event === 'copy-log-client') {
+      } else if (event === 'copy-log-project') {
         try {
           await navigator.clipboard.writeText('Coming soon') // TODO: Update
         } catch {
@@ -128,7 +129,7 @@ const ProjectLogs = () => {
 
     window.api.onMenuItemClicked(handleMenuItemClick)
 
-    const handleCloseContextMenu = () => {
+    const handleCloseContextMenu = (): void => {
       setLogIdShowingContextMenu(undefined)
     }
 
@@ -171,33 +172,53 @@ const ProjectLogs = () => {
             </p>
           </div>
         </div>
-        <div className="no-drag flex items-center gap-2.5">
-          <div className="relative">
+        <div className="no-drag flex items-center gap-4">
+          <div className="relative  has-[:disabled]:cursor-not-allowed">
             <MagnifyingGlassIcon className="w-3.5 fill-foreground absolute top-1/2 left-2.5 -translate-y-1/2" />
             <input
+              disabled
               type="text"
               id="search-projects"
               placeholder="Search"
-              className="w-48 transition-all duration-150 focus:w-64 rounded-md py-1 pl-8 pr-2 bg-transparent border border-foreground/10 placeholder-foreground/20 focus:outline-none focus:ring-2 ring-primary/25"
+              className="w-48 transition-all duration-150 focus:w-64 rounded-md disabled:cursor-not-allowed py-1 pl-8 pr-2 bg-transparent border border-foreground/10 placeholder-foreground/20 focus:outline-none focus:ring-2 ring-primary/25"
               style={{ transitionProperty: 'width' }}
             />
           </div>
 
-          <button
-            type="button"
-            title={`Clear all logs for ${project?.name ?? 'project'}`}
-            className="no-drag group rounded-md hover:bg-foreground/5 transition duration-700 px-[9px] py-2"
-            disabled={isDeleteProjectLogsLoading}
-            onClick={() => {
-              if (!projectId) {
-                return
-              }
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              title={`Clear all logs for ${project?.name ?? 'project'}`}
+              className="no-drag group rounded-md hover:bg-foreground/5 transition duration-700 px-[9px] py-2"
+              disabled={isDeleteProjectLogsLoading}
+              onClick={() => {
+                if (!projectId) {
+                  return
+                }
 
-              mutateDeleteProjectLogs({})
-            }}
-          >
-            <Trash className="fill-foreground/40 group-active:fill-foreground transition h-5" />
-          </button>
+                mutateDeleteProjectLogs({})
+              }}
+            >
+              <Trash className="fill-foreground/40 group-active:fill-foreground transition h-5" />
+            </button>
+
+            <button
+              type="button"
+              title="More info"
+              className="no-drag group rounded-md hover:bg-foreground/5 transition duration-700 px-[9px] py-2"
+              onClick={() => {
+                if (!project) {
+                  return
+                }
+
+                window.api
+                  .showProjectContextMenu(project)
+                  .catch((err: unknown) => console.error('Failed to show context menu:', err))
+              }}
+            >
+              <EllipsisCircle className="fill-foreground/40 group-active:fill-foreground transition h-5" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -217,7 +238,7 @@ const ProjectLogs = () => {
             <p className="text-foreground-muted truncate">Content</p>
           </div>
           <div className="p-2 flex">
-            <p className="text-foreground-muted truncate">Client</p>
+            <p className="text-foreground-muted truncate">Project</p>
           </div>
           <div className="p-2">
             <p className="text-foreground-muted truncate">Location</p>
@@ -275,5 +296,3 @@ const ProjectLogs = () => {
     </>
   )
 }
-
-export default ProjectLogs

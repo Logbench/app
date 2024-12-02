@@ -1,7 +1,7 @@
 import React from 'react'
 
 type CheckmarkProps = {
-  className?: string // Optional, to allow for no className
+  className?: string
 }
 
 const Checkmark: React.FC<CheckmarkProps> = ({ className }) => {
