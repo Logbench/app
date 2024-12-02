@@ -109,7 +109,7 @@ const JsonTree: React.FC<JsonTreeProps> = ({
                 <span className={classNames('_jsonKey', item === search && 'bg-yellow-500')}>
                   {stringify(item)}
                 </span>
-                <span className="_jsonSep">:</span>
+                <span className="_jsonSep">:&nbsp;</span>
               </>
             )}
             {getType(json[item]) === 'object' ? (
