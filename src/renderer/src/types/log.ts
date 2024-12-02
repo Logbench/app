@@ -7,3 +7,5 @@ export type Log = {
     name: string
   }
 }
+
+export type LogsResult = Record<string, Log[]>

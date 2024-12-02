@@ -4,7 +4,7 @@ import SidebarLeftIcon from '../icons/SidebarLeft'
 import MagnifyingGlassIcon from '../icons/MagnifyingGlass'
 import Log from './Log'
 import classNames from '../utils/classnames'
-import type { Log as ILog } from '../types/log'
+import type { Log as ILog, LogsResult } from '../types/log'
 import { useOutletContext, useParams } from 'react-router'
 import { ImperativePanelHandle } from 'react-resizable-panels'
 import usePersistRoute from '@renderer/hooks/use-persist-route'
@@ -49,10 +49,10 @@ const ProjectLogs = () => {
   })
 
   const { mutate: mutateDeleteProjectLogs, isPending: isDeleteProjectLogsLoading } = useMutation({
-    mutationFn: (date?: Date) =>
+    mutationFn: (data: { date?: Date }) =>
       window.api.deleteProjectLogs({
         projectId: projectId!,
-        date
+        date: data.date
       }),
     onSettled: () => refetchProjectLogs()
   })
@@ -64,14 +64,18 @@ const ProjectLogs = () => {
 
   // Side-effects
   useEffect(() => {
-    window.api.onNewLog((newLog) => {
+    window.api.onNewLog(({ log: newLog, day }) => {
       if (newLog.project?.id !== projectId) {
         return
       }
 
-      const existingLogs = queryClient.getQueryData<ILog[]>(['projects', projectId, 'logs']) || []
+      const existingLogs =
+        queryClient.getQueryData<LogsResult>(['projects', projectId, 'logs']) || []
 
-      queryClient.setQueryData(['projects', projectId, 'logs'], [newLog, ...existingLogs])
+      queryClient.setQueryData(['projects', projectId, 'logs'], {
+        ...existingLogs,
+        [day]: [newLog, ...(existingLogs[day] ?? [])]
+      })
     })
 
     return () => {
@@ -189,7 +193,7 @@ const ProjectLogs = () => {
                 return
               }
 
-              mutateDeleteProjectLogs()
+              mutateDeleteProjectLogs({})
             }}
           >
             <Trash className="fill-foreground/40 group-active:fill-foreground transition h-5" />
@@ -241,7 +245,9 @@ const ProjectLogs = () => {
                           return
                         }
 
-                        mutateDeleteProjectLogs(new Date(logs[0].createdAt))
+                        mutateDeleteProjectLogs({
+                          date: new Date(logs[0].createdAt)
+                        })
                       }}
                     >
                       <Trash className="fill-foreground/40 group-active:fill-foreground transition h-5" />

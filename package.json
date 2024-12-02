@@ -1,7 +1,7 @@
 {
-  "name": "loggbord",
-  "version": "1.0.0",
-  "description": "An Electron application with Svelte and TypeScript",
+  "name": "logbord",
+  "version": "0.0.1",
+  "description": "An app where you can send logs to",
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",
@@ -29,8 +29,7 @@
     "electron-updater": "^6.1.7",
     "react-resizable-panels": "^2.1.7",
     "react-router": "^7.0.1",
-    "socket.io-client": "^4.8.1",
-    "ws": "^8.18.0"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
@@ -39,7 +38,6 @@
     "@types/node": "^20.14.8",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@types/ws": "^8.5.13",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
     "electron": "^31.0.2",

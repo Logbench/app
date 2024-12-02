@@ -150,7 +150,7 @@ app.whenReady().then(() => {
 
   ipcMain.handle('delete-project-logs', async (_, data: { projectId: string; date?: Date }) => {
     return await axios
-      .delete(`http://localhost:1338/projects/${data.projectId}/logs?date=${data.date}`)
+      .delete(`http://localhost:1338/projects/${data.projectId}/logs?date=${data.date ?? ''}`)
       .then((res) => res.data)
   })
 

@@ -32,7 +32,7 @@ const api = {
   openProjectLogStream: (projectId: string): Promise<Project[]> => {
     return ipcRenderer.invoke('open-project-log-stream', projectId)
   },
-  onNewLog: (callback: (value: Log) => void): IpcRenderer =>
+  onNewLog: (callback: (value: { log: Log; day: string }) => void): IpcRenderer =>
     ipcRenderer.on('new-log', (_event, value) => callback(value)),
   removeNewLogListeners: (): void => {
     ipcRenderer.removeAllListeners('new-log')
