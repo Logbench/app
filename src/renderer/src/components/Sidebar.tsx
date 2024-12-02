@@ -1,10 +1,9 @@
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { MutableRefObject, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import SidebarLeftIcon from '../icons/SidebarLeft'
-import ShippingBoxFillIcon from '../icons/ShippingBoxFill'
-import classNames from '../utils/classnames'
 import { ImperativePanelHandle } from 'react-resizable-panels'
 import { Link, useParams } from 'react-router'
+import ShippingBoxFillIcon from '../icons/ShippingBoxFill'
+import SidebarLeftIcon from '../icons/SidebarLeft'
 import cn from '../utils/classnames'
 
 type SidebarProps = {
@@ -20,14 +19,14 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
   const [search] = useState('')
 
   // Fetch projects
-  const {
-    data: projects = [],
-    isLoading,
-    isError,
-    error
-  } = useQuery({
+  const { refetch: refetchProjects, data: projects = [] } = useQuery({
     queryKey: ['projects'],
     queryFn: () => window.api.getProjects()
+  })
+
+  const { mutate: createProject, isPending: isCreateProjectPending } = useMutation({
+    mutationFn: () => window.api.createProject('New project'),
+    onSettled: () => refetchProjects()
   })
 
   // Filtered projects based on search input
@@ -60,12 +59,9 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
             type="button"
             id="new-project"
             className="transition duration-150 border border-border-lighter w-full rounded-md py-1 px-4 bg-background-lightest active:bg-background-lightest-hover active:border-border-lighter-hover shadow shadow-background truncate"
+            disabled={isCreateProjectPending}
             onClick={() => {
-              const projectName = window.prompt('Project name')
-
-              if (projectName) {
-                window.api.createProject(projectName)
-              }
+              createProject()
             }}
           >
             New project
@@ -76,16 +72,13 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
         <div className="px-3 space-y-1.5 w-full">
           <p className="text-foreground-muted text-sm font-medium mx-2">Projects</p>
 
-          {isLoading && <p>Loading...</p>}
-          {isError && <p>Error: {error?.message || 'Unknown error'}</p>}
-          {projects.length > 0 && (
+          {projects?.length > 0 ? (
             <div className="-space-y-0.5">
               {filteredProjects.map((project: { id: string; name: string }) => (
                 <Link
                   to={`/${project.id}`}
                   key={project.id}
-                  //onClick={() => onChangeProjectId(project.id)}
-                  className={classNames(
+                  className={cn(
                     'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md focus:bg-background-lightest transition',
                     project.id === projectId
                       ? 'bg-background-lightest'
@@ -97,7 +90,7 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
                 </Link>
               ))}
             </div>
-          )}
+          ) : null}
         </div>
       </div>
 
