@@ -128,14 +128,19 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
           <p className="text-foreground-muted text-sm font-medium mx-2">Projects</p>
 
           {projects?.length > 0 ? (
-            <div className="-space-y-0.5">
+            <div>
               {filteredProjects.map((project) => {
                 return renamingProjectId === project.id ? (
                   <div
                     key={project.id}
                     className={cn(
-                      'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md transition',
-                      project.id === projectId ? 'bg-background-lightest' : 'bg-background-lighter'
+                      'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md transition border',
+                      project.id === projectId ? 'bg-background-lightest' : 'bg-background-lighter',
+                      projectIdShowingContextMenu === project.id
+                        ? 'border-primary'
+                        : project.id === projectId
+                          ? 'border-background-lightest'
+                          : 'border-background-lighter'
                     )}
                   >
                     <ShippingBoxFillIcon className="min-w-4 w-4 max-w-4 fill-primary" />
@@ -180,9 +185,13 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
                     to={`/${project.id}`}
                     key={project.id}
                     className={cn(
-                      'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md transition',
+                      'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md transition border',
                       project.id === projectId ? 'bg-background-lightest' : 'bg-background-lighter',
-                      projectIdShowingContextMenu === project.id && 'outline outline-primary'
+                      projectIdShowingContextMenu === project.id
+                        ? 'border-primary'
+                        : project.id === projectId
+                          ? 'border-background-lightest'
+                          : 'border-background-lighter'
                     )}
                   >
                     <ShippingBoxFillIcon className="w-4 fill-primary" />
