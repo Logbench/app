@@ -29,6 +29,17 @@ const api = {
   createProject: async (name: string): Promise<Project> => {
     return ipcRenderer.invoke('create-project', name)
   },
+  updateProject: async (
+    projectId: string,
+    values: {
+      name?: string
+    }
+  ): Promise<Project> => {
+    return ipcRenderer.invoke('update-project', projectId, values)
+  },
+  deleteProject: async (projectId: string): Promise<Project> => {
+    return ipcRenderer.invoke('delete-project', projectId)
+  },
   openProjectLogStream: (projectId: string): Promise<Project[]> => {
     return ipcRenderer.invoke('open-project-log-stream', projectId)
   },
@@ -45,6 +56,15 @@ const api = {
     ipcRenderer.on('menu-item-clicked', (_, action: string, log: Log) => callback(action, log)),
   showProjectContextMenu: (project: Project): Promise<unknown> => {
     return ipcRenderer.invoke('show-project-context-menu', project)
+  },
+  onProjectMenuItemClicked: (callback: (action: string, project: Project) => void): IpcRenderer =>
+    ipcRenderer.on('project-menu-item-clicked', (_, action: string, project: Project) =>
+      callback(action, project)
+    ),
+  onCloseProjectContextMenu: (callback: (projectId: string) => void): IpcRenderer => {
+    return ipcRenderer.on('close-project-context-menu', (_, projectId: string) =>
+      callback(projectId)
+    )
   }
 }
 

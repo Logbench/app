@@ -166,12 +166,35 @@ app.whenReady().then(() => {
     })
   })
 
+  ipcMain.handle('update-project', async (_, projectId: string, values: { name?: string }) => {
+    return await axios.put(`${WORKER_URL}/projects/${projectId}`, values)
+  })
+
+  ipcMain.handle('delete-project', async (_, projectId: string) => {
+    return await axios.delete(`${WORKER_URL}/projects/${projectId}`)
+  })
+
   ipcMain.handle('show-project-context-menu', (event, project: Project) => {
     const menu = Menu.buildFromTemplate([
       {
         label: 'Copy logs URL (POST)',
         click: (): void => {
           clipboard.writeText(`${WORKER_URL}/projects/${project.id}/logs`)
+        }
+      },
+      {
+        label: 'Rename project',
+        click: (): void => {
+          event.sender.send('project-menu-item-clicked', 'rename', project)
+        }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Delete project',
+        click: (): void => {
+          event.sender.send('project-menu-item-clicked', 'delete', project)
         }
       }
     ])

@@ -13,9 +13,9 @@ export default function RootLayout() {
   useEffect(() => {
     const lastRoute = localStorage.getItem('lastRoute')
     if (lastRoute) {
-      navigate(lastRoute, { replace: true }) // Navigate to the saved route
+      navigate(lastRoute, { replace: true })
     }
-  }, [navigate])
+  }, [])
 
   useEffect(() => {
     window.api.onEnterFullScreen(() => {

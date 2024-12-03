@@ -135,11 +135,9 @@ export default function ProjectLogs() {
 
     window.api.onMenuItemClicked(handleMenuItemClick)
 
-    const handleCloseContextMenu = (): void => {
+    window.api.onCloseLogContextMenu(() => {
       setLogIdShowingContextMenu(undefined)
-    }
-
-    window.api.onCloseLogContextMenu(handleCloseContextMenu)
+    })
   }, [])
 
   return (

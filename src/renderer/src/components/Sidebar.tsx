@@ -1,24 +1,31 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { MutableRefObject, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { MutableRefObject, useEffect, useState } from 'react'
 import { ImperativePanelHandle } from 'react-resizable-panels'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import ShippingBoxFillIcon from '../icons/ShippingBoxFill'
 import SidebarLeftIcon from '../icons/SidebarLeft'
 import cn from '../utils/classnames'
+import { Project } from '@renderer/types/project'
 
 type SidebarProps = {
-  sidebar: MutableRefObject<ImperativePanelHandle | null> // PaneAPI equivalent
+  sidebar: MutableRefObject<ImperativePanelHandle | null>
   isFullScreen: boolean
 }
 
 const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
+  const navigate = useNavigate()
+
   // URL state
   const { projectId } = useParams<{ projectId: string }>()
 
   // Local state
+  const [projectIdShowingContextMenu, setProjectIdShowingContextMenu] = useState<string>()
+  const [renamingProjectId, setRenamingProjectId] = useState<string>()
   const [search] = useState('')
 
-  // Fetch projects
+  // Server state
+  const queryClient = useQueryClient()
+
   const { refetch: refetchProjects, data: projects = [] } = useQuery({
     queryKey: ['projects'],
     queryFn: () => window.api.getProjects()
@@ -29,14 +36,50 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
     onSettled: () => refetchProjects()
   })
 
+  const { mutate: updateProject } = useMutation({
+    mutationFn: (data: { projectId: string; values: { name?: string } }) =>
+      window.api.updateProject(data.projectId, data.values),
+    onSettled: () => {
+      queryClient.invalidateQueries()
+      setRenamingProjectId(undefined)
+    }
+  })
+
+  const { mutate: deleteProject } = useMutation({
+    mutationFn: (projectId: string) => window.api.deleteProject(projectId),
+    onSettled: () => {
+      queryClient.invalidateQueries()
+      navigate('/')
+    }
+    //onSuccess: () => { TODO: We should add back this code once the IPC bugs are sorted out
+    //  navigate('/')
+    //}
+  })
+
   // Filtered projects based on search input
   const filteredProjects = projects.filter((project: { name: string }) =>
     project.name.toLowerCase().includes(search.toLowerCase())
   )
 
+  // Side-effects
+  useEffect(() => {
+    const handleProjectMenuItemClick = async (event: string, project: Project): Promise<void> => {
+      if (event === 'rename') {
+        setRenamingProjectId(project.id)
+      } else if (event === 'delete') {
+        deleteProject(project.id)
+      }
+    }
+
+    window.api.onProjectMenuItemClicked(handleProjectMenuItemClick)
+
+    window.api.onCloseProjectContextMenu(() => {
+      setProjectIdShowingContextMenu(undefined)
+    })
+  }, [])
+
   return (
     <div id="sidebar" className="flex flex-col h-full">
-      {/* Header Section */}
       <div
         className={cn('h-[52px] flex items-center gap-3 drag', isFullScreen ? 'px-3' : 'pl-[82px]')}
       >
@@ -53,7 +96,6 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
       </div>
 
       <div className="space-y-4 flex-1">
-        {/* New Project Button */}
         <div className="px-3">
           <button
             type="button"
@@ -68,32 +110,70 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
           </button>
         </div>
 
-        {/* Projects List */}
         <div className="px-3 space-y-1.5 w-full">
           <p className="text-foreground-muted text-sm font-medium mx-2">Projects</p>
 
           {projects?.length > 0 ? (
             <div className="-space-y-0.5">
-              {filteredProjects.map((project) => (
-                <Link
-                  onContextMenu={() => {
-                    window.api
-                      .showProjectContextMenu(project)
-                      .catch((err: unknown) => console.error('Failed to show context menu:', err))
-                  }}
-                  to={`/${project.id}`}
-                  key={project.id}
-                  className={cn(
-                    'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md focus:bg-background-lightest transition',
-                    project.id === projectId
-                      ? 'bg-background-lightest'
-                      : 'active:bg-background-lightest'
-                  )}
-                >
-                  <ShippingBoxFillIcon className="w-4 fill-primary" />
-                  <p className="truncate flex-1">{project.name}</p>
-                </Link>
-              ))}
+              {filteredProjects.map((project) => {
+                return renamingProjectId === project.id ? (
+                  <div
+                    key={project.id}
+                    className={cn(
+                      'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md transition',
+                      project.id === projectId ? 'bg-background-lightest' : 'bg-background-lighter'
+                    )}
+                  >
+                    <ShippingBoxFillIcon className="min-w-4 w-4 max-w-4 fill-primary" />
+                    <div className="max-w-full">
+                      <input
+                        autoFocus
+                        role="textbox"
+                        contentEditable
+                        defaultValue={project.name}
+                        className="w-full bg-transparent outline-primary"
+                        onBlur={async (e) => {
+                          const newName = e.currentTarget.value
+
+                          if (newName !== project.name && newName) {
+                            updateProject({
+                              projectId: project.id,
+                              values: {
+                                name: newName
+                              }
+                            })
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (['Enter', 'Escape'].includes(e.key)) {
+                            e.currentTarget.blur()
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    onContextMenu={() => {
+                      setProjectIdShowingContextMenu(project.id)
+
+                      window.api
+                        .showProjectContextMenu(project)
+                        .catch((err: unknown) => console.error('Failed to show context menu:', err))
+                    }}
+                    to={`/${project.id}`}
+                    key={project.id}
+                    className={cn(
+                      'flex items-center gap-2.5 text-left py-1.5 px-3 w-full rounded-md transition',
+                      project.id === projectId ? 'bg-background-lightest' : 'bg-background-lighter',
+                      projectIdShowingContextMenu === project.id && 'outline outline-primary'
+                    )}
+                  >
+                    <ShippingBoxFillIcon className="w-4 fill-primary" />
+                    <p className="truncate flex-1">{project.name}</p>
+                  </Link>
+                )
+              })}
             </div>
           ) : null}
         </div>
