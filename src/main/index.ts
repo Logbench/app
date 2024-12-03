@@ -173,13 +173,17 @@ app.whenReady().then(() => {
     return await axios.put(`${WORKER_URL}/projects/${projectId}`, values).then((res) => res.data)
   })
 
-  ipcMain.handle('delete-project', async (_, projectId: string) => {
-    const shouldDeleteProject = await dialog.showMessageBox({
-      title: 'Delete project',
+  ipcMain.handle('delete-project', async (event, projectId: string) => {
+    const window = BrowserWindow.fromWebContents(event.sender)
+
+    if (!window) return
+
+    const shouldDeleteProject = await dialog.showMessageBox(window, {
       message: 'Are you sure you want to delete this project?',
+      detail: "You won't be able to get your project back.",
       buttons: ['Cancel', 'Delete project'],
-      type: 'warning',
-      detail: "You won't be able to get your project back."
+      title: 'Delete project',
+      type: 'warning'
     })
 
     if (shouldDeleteProject.response === 0) {
