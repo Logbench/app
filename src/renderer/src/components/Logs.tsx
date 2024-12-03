@@ -114,7 +114,7 @@ export default function ProjectLogs() {
         }
       } else if (event === 'copy-log-project') {
         try {
-          await navigator.clipboard.writeText('Coming soon') // TODO: Update
+          await navigator.clipboard.writeText(log.project?.name ?? 'Not found') // TODO: Update
         } catch {
           window.alert('Failed to copy to clipboard')
         }
@@ -133,11 +133,15 @@ export default function ProjectLogs() {
       }
     }
 
-    window.api.onMenuItemClicked(handleMenuItemClick)
+    window.api.onLogMenuItemClicked(handleMenuItemClick)
 
-    window.api.onCloseLogContextMenu(() => {
+    window.api.onCloseLogMenu(() => {
       setLogIdShowingContextMenu(undefined)
     })
+
+    return (): void => {
+      window.api.unregisterLogMenuListeners()
+    }
   }, [])
 
   return (
@@ -216,7 +220,7 @@ export default function ProjectLogs() {
                 }
 
                 window.api
-                  .showProjectContextMenu(project)
+                  .showProjectMenu(project)
                   .catch((err: unknown) => console.error('Failed to show context menu:', err))
               }}
             >
@@ -288,7 +292,7 @@ export default function ProjectLogs() {
                     onOpenContextMenu={() => {
                       setLogIdShowingContextMenu(log.id)
                       window.api
-                        .showContextMenu(log)
+                        .showLogMenu(log)
                         .catch((err: unknown) => console.error('Failed to show context menu:', err))
                     }}
                   />

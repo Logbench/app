@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { MutableRefObject, useEffect, useState } from 'react'
 import { ImperativePanelHandle } from 'react-resizable-panels'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import ShippingBoxFillIcon from '../icons/ShippingBoxFill'
 import SidebarLeftIcon from '../icons/SidebarLeft'
 import cn from '../utils/classnames'
@@ -14,6 +14,7 @@ type SidebarProps = {
 
 const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
   const navigate = useNavigate()
+  const location = useLocation()
 
   // URL state
   const { projectId } = useParams<{ projectId: string }>()
@@ -41,7 +42,12 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
       window.api.updateProject(data.projectId, data.values),
     onSettled: () => {
       queryClient.invalidateQueries()
+    },
+    onSuccess: () => {
       setRenamingProjectId(undefined)
+    },
+    onError: () => {
+      window.alert('Failed to update project')
     }
   })
 
@@ -49,11 +55,15 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
     mutationFn: (projectId: string) => window.api.deleteProject(projectId),
     onSettled: () => {
       queryClient.invalidateQueries()
-      navigate('/')
+    },
+    onSuccess: (deletedProject) => {
+      if (deletedProject?.id && location.pathname.includes(deletedProject.id)) {
+        navigate('/')
+      }
+    },
+    onError: () => {
+      window.alert('Failed to delete project')
     }
-    //onSuccess: () => { TODO: We should add back this code once the IPC bugs are sorted out
-    //  navigate('/')
-    //}
   })
 
   // Filtered projects based on search input
@@ -73,9 +83,13 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
 
     window.api.onProjectMenuItemClicked(handleProjectMenuItemClick)
 
-    window.api.onCloseProjectContextMenu(() => {
+    window.api.onCloseProjectMenu(() => {
       setProjectIdShowingContextMenu(undefined)
     })
+
+    return (): void => {
+      window.api.unregisterProjectMenuListeners()
+    }
   }, [])
 
   return (
@@ -142,6 +156,8 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
                                 name: newName
                               }
                             })
+                          } else {
+                            setRenamingProjectId(undefined)
                           }
                         }}
                         onKeyDown={(e) => {
@@ -158,7 +174,7 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
                       setProjectIdShowingContextMenu(project.id)
 
                       window.api
-                        .showProjectContextMenu(project)
+                        .showProjectMenu(project)
                         .catch((err: unknown) => console.error('Failed to show context menu:', err))
                     }}
                     to={`/${project.id}`}

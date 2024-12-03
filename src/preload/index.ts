@@ -5,66 +5,60 @@ import { Log, LogsResult } from './types/log'
 
 // Custom APIs for rendere
 const api = {
-  showContextMenu: (log: Log): Promise<unknown> => {
-    return ipcRenderer.invoke('show-log-context-menu', log)
-  },
-  onCloseLogContextMenu: (callback: (logId: string) => void): IpcRenderer => {
-    return ipcRenderer.on('close-log-context-menu', (_, logId: string) => callback(logId))
-  },
-  getProjects: (): Promise<Project[]> => {
-    return ipcRenderer.invoke('get-projects')
-  },
-  getProject: (projectId: string): Promise<Project> => {
-    return ipcRenderer.invoke('get-project', projectId)
-  },
-  getProjectLogs: (projectId: string): Promise<LogsResult> => {
-    return ipcRenderer.invoke('get-project-logs', projectId)
-  },
-  deleteProjectLogs: (data: { projectId: string; date?: Date }): Promise<Log[]> => {
-    return ipcRenderer.invoke('delete-project-logs', data)
-  },
-  deleteLog: (logId: string): Promise<Log> => {
-    return ipcRenderer.invoke('delete-log', logId)
-  },
-  createProject: async (name: string): Promise<Project> => {
-    return ipcRenderer.invoke('create-project', name)
-  },
+  getProjects: (): Promise<Project[]> => ipcRenderer.invoke('get-projects'),
+  getProject: (projectId: string): Promise<Project> => ipcRenderer.invoke('get-project', projectId),
+  getProjectLogs: (projectId: string): Promise<LogsResult> =>
+    ipcRenderer.invoke('get-project-logs', projectId),
+  deleteProjectLogs: (data: { projectId: string; date?: Date }): Promise<Log[]> =>
+    ipcRenderer.invoke('delete-project-logs', data),
+  deleteLog: (logId: string): Promise<Log> => ipcRenderer.invoke('delete-log', logId),
+  createProject: async (name: string): Promise<Project> =>
+    ipcRenderer.invoke('create-project', name),
   updateProject: async (
     projectId: string,
     values: {
       name?: string
     }
-  ): Promise<Project> => {
-    return ipcRenderer.invoke('update-project', projectId, values)
-  },
-  deleteProject: async (projectId: string): Promise<Project> => {
-    return ipcRenderer.invoke('delete-project', projectId)
-  },
-  openProjectLogStream: (projectId: string): Promise<Project[]> => {
-    return ipcRenderer.invoke('open-project-log-stream', projectId)
-  },
+  ): Promise<Project> => ipcRenderer.invoke('update-project', projectId, values),
+  deleteProject: async (projectId: string): Promise<Project> =>
+    ipcRenderer.invoke('delete-project', projectId),
+  openProjectLogStream: (projectId: string): Promise<Project[]> =>
+    ipcRenderer.invoke('open-project-log-stream', projectId),
   onNewLog: (callback: (value: { log: Log; day: string }) => void): IpcRenderer =>
     ipcRenderer.on('new-log', (_event, value) => callback(value)),
   removeNewLogListeners: (): void => {
     ipcRenderer.removeAllListeners('new-log')
   },
+
+  // Fullscreen
   onEnterFullScreen: (callback: () => void): IpcRenderer =>
     ipcRenderer.on('enter-full-screen', () => callback()),
   onLeaveFullScreen: (callback: () => void): IpcRenderer =>
     ipcRenderer.on('leave-full-screen', () => callback()),
-  onMenuItemClicked: (callback: (action: string, log: Log) => void): IpcRenderer =>
-    ipcRenderer.on('menu-item-clicked', (_, action: string, log: Log) => callback(action, log)),
-  showProjectContextMenu: (project: Project): Promise<unknown> => {
-    return ipcRenderer.invoke('show-project-context-menu', project)
+
+  // Log menu
+  showLogMenu: (log: Log): Promise<unknown> => ipcRenderer.invoke('show-log-menu', log),
+  onLogMenuItemClicked: (callback: (action: string, log: Log) => void): IpcRenderer =>
+    ipcRenderer.on('log-menu-item-clicked', (_, action: string, log: Log) => callback(action, log)),
+  onCloseLogMenu: (callback: (logId: string) => void): IpcRenderer =>
+    ipcRenderer.on('close-log-menu', (_, logId: string) => callback(logId)),
+  unregisterLogMenuListeners: (): void => {
+    ipcRenderer.removeAllListeners('log-menu-item-clicked')
+    ipcRenderer.removeAllListeners('close-log-menu')
   },
+
+  // Project menu
+  showProjectMenu: (project: Project): Promise<unknown> =>
+    ipcRenderer.invoke('show-project-menu', project),
   onProjectMenuItemClicked: (callback: (action: string, project: Project) => void): IpcRenderer =>
     ipcRenderer.on('project-menu-item-clicked', (_, action: string, project: Project) =>
       callback(action, project)
     ),
-  onCloseProjectContextMenu: (callback: (projectId: string) => void): IpcRenderer => {
-    return ipcRenderer.on('close-project-context-menu', (_, projectId: string) =>
-      callback(projectId)
-    )
+  onCloseProjectMenu: (callback: (projectId: string) => void): IpcRenderer =>
+    ipcRenderer.on('close-project-menu', (_, projectId: string) => callback(projectId)),
+  unregisterProjectMenuListeners: (): void => {
+    ipcRenderer.removeAllListeners('project-menu-item-clicked')
+    ipcRenderer.removeAllListeners('close-project-menu')
   }
 }
 

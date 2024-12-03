@@ -1,5 +1,5 @@
 import icon from '../../resources/icon.png?asset'
-import { BrowserWindow, Menu, app, clipboard, ipcMain, nativeTheme, shell } from 'electron'
+import { BrowserWindow, Menu, app, clipboard, dialog, ipcMain, nativeTheme, shell } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import axios from 'axios'
@@ -80,7 +80,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  ipcMain.handle('show-log-context-menu', (event, log: Log) => {
+  ipcMain.handle('show-log-menu', (event, log: Log) => {
     const menu = Menu.buildFromTemplate([
       {
         label: 'Copy',
@@ -88,39 +88,40 @@ app.whenReady().then(() => {
           {
             label: 'Entire log',
             click: (): void => {
-              event.sender.send('menu-item-clicked', 'copy-log', log)
+              event.sender.send('log-menu-item-clicked', 'copy-log', log)
             }
           },
           {
             label: 'Timestamp',
             click: (): void => {
-              event.sender.send('menu-item-clicked', 'copy-log-timestamp', log)
+              event.sender.send('log-menu-item-clicked', 'copy-log-timestamp', log)
             }
           },
           {
             label: 'Content',
             click: (): void => {
-              event.sender.send('menu-item-clicked', 'copy-log-content', log)
+              event.sender.send('log-menu-item-clicked', 'copy-log-content', log)
             }
           },
           {
             label: 'Project',
             click: (): void => {
-              event.sender.send('menu-item-clicked', 'copy-log-project', log)
+              event.sender.send('log-menu-item-clicked', 'copy-log-project', log)
             }
           },
           {
             label: 'Location',
             click: (): void => {
-              event.sender.send('menu-item-clicked', 'copy-log-location', log)
+              event.sender.send('log-menu-item-clicked', 'copy-log-location', log)
             }
           }
         ]
       },
+      { type: 'separator' },
       {
-        label: 'Delete',
+        label: 'Delete log',
         click: (): void => {
-          event.sender.send('menu-item-clicked', 'delete-log', log)
+          event.sender.send('log-menu-item-clicked', 'delete-log', log)
         }
       }
     ])
@@ -131,7 +132,7 @@ app.whenReady().then(() => {
       menu.popup({ window })
 
       menu.on('menu-will-close', () => {
-        window.webContents.send('close-log-context-menu', log)
+        window.webContents.send('close-log-menu', log)
       })
     }
   })
@@ -161,20 +162,34 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('create-project', async (_, name: string) => {
-    return await axios.post(`${WORKER_URL}/projects`, {
-      name
-    })
+    return await axios
+      .post(`${WORKER_URL}/projects`, {
+        name
+      })
+      .then((res) => res.data)
   })
 
   ipcMain.handle('update-project', async (_, projectId: string, values: { name?: string }) => {
-    return await axios.put(`${WORKER_URL}/projects/${projectId}`, values)
+    return await axios.put(`${WORKER_URL}/projects/${projectId}`, values).then((res) => res.data)
   })
 
   ipcMain.handle('delete-project', async (_, projectId: string) => {
-    return await axios.delete(`${WORKER_URL}/projects/${projectId}`)
+    const shouldDeleteProject = await dialog.showMessageBox({
+      title: 'Delete project',
+      message: 'Are you sure you want to delete this project?',
+      buttons: ['Cancel', 'Delete project'],
+      type: 'warning',
+      detail: "You won't be able to get your project back."
+    })
+
+    if (shouldDeleteProject.response === 0) {
+      return
+    }
+
+    return await axios.delete(`${WORKER_URL}/projects/${projectId}`).then((res) => res.data)
   })
 
-  ipcMain.handle('show-project-context-menu', (event, project: Project) => {
+  ipcMain.handle('show-project-menu', (event, project: Project) => {
     const menu = Menu.buildFromTemplate([
       {
         label: 'Copy logs URL (POST)',
@@ -188,11 +203,9 @@ app.whenReady().then(() => {
           event.sender.send('project-menu-item-clicked', 'rename', project)
         }
       },
+      { type: 'separator' },
       {
-        type: 'separator'
-      },
-      {
-        label: 'Delete project',
+        label: 'Delete project...',
         click: (): void => {
           event.sender.send('project-menu-item-clicked', 'delete', project)
         }
@@ -205,7 +218,7 @@ app.whenReady().then(() => {
       menu.popup({ window })
 
       menu.on('menu-will-close', () => {
-        window.webContents.send('close-project-context-menu', project)
+        window.webContents.send('close-project-menu', project)
       })
     }
   })
