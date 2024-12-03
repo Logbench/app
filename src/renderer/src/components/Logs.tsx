@@ -73,10 +73,16 @@ export default function ProjectLogs() {
       const existingLogs =
         queryClient.getQueryData<LogsResult>(['projects', projectId, 'logs']) || []
 
-      queryClient.setQueryData(['projects', projectId, 'logs'], {
-        ...existingLogs,
-        [day]: [newLog, ...(existingLogs[day] ?? [])]
-      })
+      if (existingLogs) {
+        const dayLogs = existingLogs[day] ?? []
+
+        delete existingLogs[day]
+
+        queryClient.setQueryData(['projects', projectId, 'logs'], {
+          [day]: [newLog, ...dayLogs],
+          ...existingLogs
+        })
+      }
     })
 
     return (): void => {
