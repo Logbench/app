@@ -114,7 +114,7 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
           <button
             type="button"
             id="new-project"
-            className="transition duration-150 border border-border-lighter w-full rounded-md py-1 px-4 bg-background-lightest active:bg-background-lightest-hover active:border-border-lighter-hover shadow shadow-background truncate"
+            className="transition duration-150 border border-border-lighter w-full rounded-md py-1 px-4 bg-background-lightest active:bg-background-lightest-hover active:border-border-lighter-hover shadow-sm shadow-background truncate"
             disabled={isCreateProjectPending}
             onClick={() => {
               createProject()
