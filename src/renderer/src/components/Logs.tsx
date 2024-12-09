@@ -234,7 +234,7 @@ export default function ProjectLogs() {
         className="flex flex-col relative overflow-y-auto"
         style={{ height: 'calc(100% - 53px)' }}
       >
-        <div className="grid grid-cols-10 bg-background px-4 sticky top-0 z-10 border-t border-border-light">
+        <div className="grid grid-cols-10 bg-background px-4 sticky top-0 border-t border-border-light">
           <button
             type="button"
             title="Order by date"
@@ -258,7 +258,7 @@ export default function ProjectLogs() {
         {logs
           ? Object.entries(logs).map(([date, logs]) => (
               <Fragment key={date}>
-                <div className="bg-background-lighter sticky top-[36px] z-10 border-y border-border-light pl-4 pr-3 py-0.5">
+                <div className="bg-background-lighter sticky top-[36px] border-y border-border-light pl-4 pr-3 py-0.5">
                   <div className="flex items-center justify-between">
                     <p className="p-2 text-foreground-muted text-sm uppercase tracking-wider font-light">
                       {date}

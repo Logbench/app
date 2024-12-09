@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react'
-import { format, isAfter, subSeconds } from 'date-fns'
-import { isObjectLike } from '../utils/is-object-like'
-import ObjectTree from './ObjectTree'
 import { Log } from '@renderer/types/log'
 import cn from '@renderer/utils/classnames'
+import { format, isAfter, subSeconds } from 'date-fns'
+import React, { useMemo } from 'react'
+import { isObjectLike } from '../utils/is-object-like'
+import ObjectTree from './ObjectTree'
 
 type LogProps = {
   onOpenContextMenu: () => void
@@ -12,7 +12,6 @@ type LogProps = {
 }
 
 const LogItem: React.FC<LogProps> = ({ log, onOpenContextMenu, isShowingContextMenu }) => {
-  // Derived state for parsed log
   const parsedLog: Log = useMemo(() => {
     if (
       typeof log.content === 'string' &&
@@ -24,22 +23,18 @@ const LogItem: React.FC<LogProps> = ({ log, onOpenContextMenu, isShowingContextM
           content: JSON.parse(log.content)
         }
       } catch {
-        // Fallback in case parsing fails
         return log
       }
     }
     return log
   }, [log])
 
-  // Context menu handler
-  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>): void => {
-    event.preventDefault()
-    onOpenContextMenu()
-  }
-
   return (
     <div
-      onContextMenu={handleContextMenu}
+      onContextMenu={(e) => {
+        e.preventDefault()
+        onOpenContextMenu()
+      }}
       tabIndex={0}
       onMouseDown={(e) => {
         if (e.nativeEvent.button === 2) {
