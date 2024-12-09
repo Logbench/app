@@ -151,6 +151,10 @@ const Sidebar = ({ sidebar, isFullScreen }: SidebarProps) => {
                         contentEditable
                         defaultValue={project.name}
                         className="w-full bg-transparent outline-primary"
+                        onFocus={(e) => {
+                          e.currentTarget.selectionStart = 0
+                          e.currentTarget.selectionEnd = e.currentTarget.value.length
+                        }}
                         onBlur={async (e) => {
                           const newName = e.currentTarget.value
 
