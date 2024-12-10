@@ -3,7 +3,7 @@ import EllipsisCircle from '@renderer/icons/EllipsisCircle'
 import Trash from '@renderer/icons/Trash'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { ImperativePanelHandle } from 'react-resizable-panels'
 import { useOutletContext, useParams } from 'react-router'
 import MagnifyingGlassIcon from '../icons/MagnifyingGlass'
@@ -11,6 +11,7 @@ import SidebarLeftIcon from '../icons/SidebarLeft'
 import type { Log as ILog, LogsResult } from '../types/log'
 import classNames from '../utils/classnames'
 import Log from './Log'
+import { useDebounce } from '@uidotdev/usehooks'
 
 export default function ProjectLogs() {
   usePersistRoute()
@@ -29,6 +30,9 @@ export default function ProjectLogs() {
 
   // Local state
   const [logIdShowingContextMenu, setLogIdShowingContextMenu] = useState<string>()
+  const [search, setSearch] = useState<string>('')
+
+  const debouncedSearch = useDebounce(search.length > 2 ? search : '', 500)
 
   // Server state
   const { data: project, isLoading: isProjectLoading } = useQuery({
@@ -144,6 +148,20 @@ export default function ProjectLogs() {
     }
   }, [])
 
+  const filteredLogs = useMemo(() => {
+    const _filteredLogs: Record<string, ILog[]> = {}
+
+    if (logs) {
+      Object.entries(logs).forEach(([key, logs]) => {
+        _filteredLogs[key] = logs.filter((log) =>
+          debouncedSearch ? log.content.includes(debouncedSearch) : true
+        )
+      })
+    }
+
+    return _filteredLogs
+  }, [logs, debouncedSearch])
+
   return (
     <>
       <div
@@ -176,7 +194,7 @@ export default function ProjectLogs() {
             <p className="text-sm text-foreground-muted leading-none">
               {isLogsLoading
                 ? 'Loading logs...'
-                : `${logs ? Object.values(logs).reduce((a, b) => a + b.length, 0) : 0} logs`}
+                : `${filteredLogs ? Object.values(filteredLogs).reduce((a, b) => a + b.length, 0) : 0} logs`}
             </p>
           </div>
         </div>
@@ -184,12 +202,12 @@ export default function ProjectLogs() {
           <div className="relative  has-[:disabled]:cursor-not-allowed">
             <MagnifyingGlassIcon className="w-3.5 fill-foreground absolute top-1/2 left-2.5 -translate-y-1/2" />
             <input
-              disabled
               type="text"
+              value={search}
               id="search-projects"
               placeholder="Search"
+              onChange={(e) => setSearch(e.currentTarget.value)}
               className="w-48 transition-all duration-150 focus:w-64 rounded-md disabled:cursor-not-allowed py-1 pl-8 pr-2 bg-transparent border border-foreground/10 placeholder-foreground/20 focus:outline-none focus:ring-2 ring-primary/25"
-              style={{ transitionProperty: 'width' }}
             />
           </div>
 
@@ -255,8 +273,8 @@ export default function ProjectLogs() {
 
         {isLogsLoading && <p>Loading...</p>}
         {isLogsError && <p>Error: {logsError?.message || 'Unknown error'}</p>}
-        {logs
-          ? Object.entries(logs).map(([date, logs]) => (
+        {filteredLogs
+          ? Object.entries(filteredLogs).map(([date, logs]) => (
               <Fragment key={date}>
                 <div className="bg-background-lighter sticky top-[36px] border-y border-border-light pl-4 pr-3 py-0.5">
                   <div className="flex items-center justify-between">

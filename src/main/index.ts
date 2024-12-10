@@ -145,9 +145,9 @@ app.whenReady().then(() => {
     return await axios.get(`${WORKER_URL}/projects/${projectId}`).then((res) => res.data)
   })
 
-  ipcMain.handle('get-project-logs', async (_, projectId: string) => {
+  ipcMain.handle('get-project-logs', async (_, projectId: string, search: string = '') => {
     return await axios
-      .get<LogsResult>(`${WORKER_URL}/projects/${projectId}/logs`)
+      .get<LogsResult>(`${WORKER_URL}/projects/${projectId}/logs?search=${search}`)
       .then((res) => res.data)
   })
 

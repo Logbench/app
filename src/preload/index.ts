@@ -7,8 +7,8 @@ import { Log, LogsResult } from './types/log'
 const api = {
   getProjects: (): Promise<Project[]> => ipcRenderer.invoke('get-projects'),
   getProject: (projectId: string): Promise<Project> => ipcRenderer.invoke('get-project', projectId),
-  getProjectLogs: (projectId: string): Promise<LogsResult> =>
-    ipcRenderer.invoke('get-project-logs', projectId),
+  getProjectLogs: (projectId: string, search?: string): Promise<LogsResult> =>
+    ipcRenderer.invoke('get-project-logs', projectId, search),
   deleteProjectLogs: (data: { projectId: string; date?: Date }): Promise<Log[]> =>
     ipcRenderer.invoke('delete-project-logs', data),
   deleteLog: (logId: string): Promise<Log> => ipcRenderer.invoke('delete-log', logId),
