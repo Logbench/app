@@ -154,7 +154,7 @@ export default function ProjectLogs() {
     if (logs) {
       Object.entries(logs).forEach(([key, logs]) => {
         _filteredLogs[key] = logs.filter((log) =>
-          debouncedSearch ? log.content.includes(debouncedSearch) : true
+          debouncedSearch ? log.content.toLowerCase().includes(debouncedSearch.toLowerCase()) : true
         )
       })
     }
@@ -207,7 +207,7 @@ export default function ProjectLogs() {
               id="search-projects"
               placeholder="Search"
               onChange={(e) => setSearch(e.currentTarget.value)}
-              className="w-48 transition-all duration-150 focus:w-64 rounded-md disabled:cursor-not-allowed py-1 pl-8 pr-2 bg-transparent border border-foreground/10 placeholder-foreground/20 focus:outline-none focus:ring-2 ring-primary/25"
+              className="transition duration-150 w-56 rounded-md disabled:cursor-not-allowed py-1 pl-8 pr-2 bg-transparent border border-foreground/10 placeholder-foreground/20 focus:outline-none focus:ring-2 ring-primary/25"
             />
           </div>
 
