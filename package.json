@@ -1,6 +1,6 @@
 {
   "name": "Logbench",
-  "version": "0.0.1",
+  "version": "0.0.2-beta",
   "description": "An app where you can send logs to",
   "main": "./dist/main/index.js",
   "author": "example.com",
@@ -33,7 +33,6 @@
   "devDependencies": {
     "@electron-forge/cli": "^6.2.1",
     "@electron-forge/maker-deb": "^6.2.1",
-    "@electron-forge/maker-dmg": "^7.6.0",
     "@electron-forge/maker-rpm": "^6.2.1",
     "@electron-forge/maker-squirrel": "^6.2.1",
     "@electron-forge/maker-zip": "^6.2.1",
