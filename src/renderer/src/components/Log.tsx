@@ -1,7 +1,7 @@
 import { Log } from '@renderer/types/log'
 import cn from '@renderer/utils/classnames'
 import { format, isAfter, subSeconds } from 'date-fns'
-import React, { useMemo } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import { isObjectLike } from '../utils/is-object-like'
 import ObjectTree from './ObjectTree'
 
@@ -12,22 +12,16 @@ type LogProps = {
 }
 
 const LogItem: React.FC<LogProps> = ({ log, onOpenContextMenu, isShowingContextMenu }) => {
-  const parsedLog: Log = useMemo(() => {
-    if (
-      typeof log.content === 'string' &&
-      (log.content.startsWith('{') || log.content.startsWith('['))
-    ) {
+  function parseLogContent(content: string) {
+    if (typeof content === 'string' && (content.startsWith('{') || content.startsWith('['))) {
       try {
-        return {
-          ...log,
-          content: JSON.parse(log.content)
-        }
+        return JSON.parse(content)
       } catch {
-        return log
+        return content
       }
     }
-    return log
-  }, [log])
+    return content
+  }
 
   return (
     <div
@@ -43,31 +37,39 @@ const LogItem: React.FC<LogProps> = ({ log, onOpenContextMenu, isShowingContextM
       }}
       className={cn(
         'grid grid-cols-10 px-4 focus:outline-none border-b border-border-light bg-background focus:bg-primary/5',
-        isAfter(new Date(parsedLog.createdAt), subSeconds(new Date(), 1)) && 'fade-in',
+        isAfter(new Date(log.createdAt), subSeconds(new Date(), 1)) && 'fade-in',
         isShowingContextMenu && 'bg-background-lighter'
       )}
     >
       {/* Date */}
       <div className="p-2 col-span-1">
         <p className="text-foreground-muted truncate">
-          {parsedLog.createdAt ? format(new Date(parsedLog.createdAt), 'HH:mm:ss:SSS') : 'No date'}
+          {log.createdAt ? format(new Date(log.createdAt), 'HH:mm:ss:SSS') : 'No date'}
         </p>
       </div>
 
       {/* Content */}
-      <div className="p-2 overflow-x-auto col-span-6">
-        {isObjectLike(parsedLog.content) || Array.isArray(parsedLog.content) ? (
-          <div className="json-viewer font-mono">
-            <ObjectTree depth={1} json={parsedLog.content} />
-          </div>
-        ) : (
-          <p className="truncate">{String(parsedLog.content)}</p>
-        )}
+      <div className="p-2 flex flex-col overflow-x-auto col-span-6 gap-1">
+        {log.content?.map((item) => {
+          const parsedItemContent = parseLogContent(item.content)
+
+          return (
+            <Fragment key={item.id}>
+              {isObjectLike(parsedItemContent) || Array.isArray(parsedItemContent) ? (
+                <div className="json-viewer font-mono">
+                  <ObjectTree depth={1} json={parsedItemContent} />
+                </div>
+              ) : (
+                <p className="truncate">{String(parsedItemContent)}</p>
+              )}
+            </Fragment>
+          )
+        })}
       </div>
 
       {/* Project Name */}
       <div className="p-2 flex">
-        <p className="text-foreground-muted truncate">{parsedLog.project?.name}</p>
+        <p className="text-foreground-muted truncate">{log.project?.name}</p>
       </div>
 
       {/* Location */}

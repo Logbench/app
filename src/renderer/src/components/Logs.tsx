@@ -112,7 +112,7 @@ export default function ProjectLogs() {
         }
       } else if (event === 'copy-log-content') {
         try {
-          await navigator.clipboard.writeText(log.content)
+          await navigator.clipboard.writeText(log.content.flatMap((item) => item.content).join(' '))
         } catch {
           window.alert('Failed to copy to clipboard')
         }
@@ -154,7 +154,11 @@ export default function ProjectLogs() {
     if (logs) {
       Object.entries(logs).forEach(([key, logs]) => {
         _filteredLogs[key] = logs.filter((log) =>
-          debouncedSearch ? log.content.toLowerCase().includes(debouncedSearch.toLowerCase()) : true
+          debouncedSearch
+            ? log.content.some((item) =>
+                item.content.toLowerCase().includes(debouncedSearch.toLowerCase())
+              )
+            : true
         )
       })
     }
